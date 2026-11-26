@@ -8,10 +8,12 @@ export function App() {
   useEffect(() => {
     if (!canvasHost.current) return
 
+    const host = canvasHost.current
+    const logicalWidth = () => Math.max(640, Math.round(360 * host.clientWidth / host.clientHeight))
     const game = new Phaser.Game({
       type: Phaser.AUTO,
-      parent: canvasHost.current,
-      width: 640,
+      parent: host,
+      width: logicalWidth(),
       height: 360,
       backgroundColor: '#e9d5b9',
       pixelArt: true,
@@ -23,7 +25,16 @@ export function App() {
       scene: [LibraryScene],
     })
 
-    return () => game.destroy(true)
+    const observer = new ResizeObserver(() => {
+      const width = logicalWidth()
+      if (game.scale.width !== width) game.scale.resize(width, 360)
+    })
+    observer.observe(host)
+
+    return () => {
+      observer.disconnect()
+      game.destroy(true)
+    }
   }, [])
 
   return (

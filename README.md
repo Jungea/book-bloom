@@ -17,7 +17,7 @@ npm run dev
 
 Android Studio와 Android SDK가 설치된 환경에서 `npm run android:sync`로 웹 빌드를 Android 프로젝트에 반영합니다. 그 뒤 `android/`에서 `gradlew.bat assembleDebug`를 실행하면 `android/app/build/outputs/apk/debug/app-debug.apk`가 생성됩니다. Gradle이 SDK 경로를 찾지 못하면 `ANDROID_HOME`을 SDK 폴더로 지정합니다. `npm run android:open`으로 Android Studio에서 프로젝트를 열 수도 있습니다.
 
-현재 Android 화면은 도서관 검증을 위해 가로 방향으로 고정했습니다. 독서관리 화면 추가 시 방향 전환 방식을 다시 결정해야 합니다. 앱 ID `com.jungea.bookbloom`도 개발용 설정이며 출시 전 확인이 필요합니다. 에뮬레이터 설치·화면 표시는 확인했지만 실기기와 터치 입력은 아직 검증하지 않았습니다.
+현재 Android 화면은 도서관 검증을 위해 가로 방향으로 고정했습니다. 독서관리 화면 추가 시 방향 전환 방식을 다시 결정해야 합니다. 앱 ID `com.jungea.bookbloom`도 개발용 설정이며 출시 전 확인이 필요합니다. 에뮬레이터와 Android 13 실기기에서 설치·화면 표시를 확인했습니다. 긴 화면에서는 640×360 기본 장면을 가운데 두고 벽·바닥·상태바를 좌우로 확장해 앱 영역을 채웁니다. 터치 입력은 아직 검증하지 않았습니다.
 
 ## 문서
 

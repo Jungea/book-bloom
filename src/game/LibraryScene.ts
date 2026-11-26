@@ -8,7 +8,7 @@ import monitorUrl from '../../assets/source/v4/circulation/desk_monitor.png'
 import bookshelfUrl from '../../assets/source/v4/bookshelves/bookshelf_empty.png'
 import returnTrayUrl from '../../assets/source/v4/circulation/return_tray_empty.png'
 
-const WIDTH = 640
+const BASE_WIDTH = 640
 const HEIGHT = 360
 const STATUS_HEIGHT = 32
 const FLOOR_Y = 240
@@ -31,29 +31,40 @@ export class LibraryScene extends Phaser.Scene {
   }
 
   create() {
+    const width = this.scale.width
+    const offset = (width - BASE_WIDTH) / 2
+
     this.add.tileSprite(
-      WIDTH / 2,
+      width / 2,
       (STATUS_HEIGHT + FLOOR_Y) / 2,
-      WIDTH,
+      width,
       FLOOR_Y - STATUS_HEIGHT,
       'wall',
     ).setTileScale(0.5)
 
     this.add.tileSprite(
-      WIDTH / 2,
+      width / 2,
       (FLOOR_Y + HEIGHT) / 2,
-      WIDTH,
+      width,
       HEIGHT - FLOOR_Y,
       'floor',
     ).setTileScale(0.5)
 
-    this.add.tileSprite(WIDTH / 2, FLOOR_Y, WIDTH, 8, 'baseboard').setTileScale(0.5)
+    this.add.tileSprite(width / 2, FLOOR_Y, width, 8, 'baseboard').setTileScale(0.5)
 
-    this.add.image(SLOT_CENTERS[0], FLOOR_Y, 'desk').setOrigin(0.5, 1).setScale(0.5)
-    this.add.image(SLOT_CENTERS[0], FLOOR_Y - 76, 'monitor').setOrigin(0.5, 1).setScale(0.5)
-    this.add.image(SLOT_CENTERS[1], FLOOR_Y, 'bookshelf').setOrigin(0.5, 1).setScale(0.5)
-    this.add.image(SLOT_CENTERS[3], FLOOR_Y, 'returnTray').setOrigin(0.5, 1).setScale(0.5)
+    this.add.image(offset + SLOT_CENTERS[0], FLOOR_Y, 'desk').setOrigin(0.5, 1).setScale(0.5)
+    this.add.image(offset + SLOT_CENTERS[0], FLOOR_Y - 76, 'monitor').setOrigin(0.5, 1).setScale(0.5)
+    this.add.image(offset + SLOT_CENTERS[1], FLOOR_Y, 'bookshelf').setOrigin(0.5, 1).setScale(0.5)
+    this.add.image(offset + SLOT_CENTERS[3], FLOOR_Y, 'returnTray').setOrigin(0.5, 1).setScale(0.5)
 
-    this.add.image(WIDTH / 2, 0, 'statusBar').setOrigin(0.5, 0).setDisplaySize(WIDTH, STATUS_HEIGHT)
+    this.add.rectangle(0, 0, width, STATUS_HEIGHT, 0x344b60).setOrigin(0, 0)
+    this.add.image(width / 2, 0, 'statusBar').setOrigin(0.5, 0).setScale(0.5)
+
+    this.scale.on('resize', this.handleResize, this)
+    this.events.once('shutdown', () => this.scale.off('resize', this.handleResize, this))
+  }
+
+  private handleResize() {
+    this.scene.restart()
   }
 }
