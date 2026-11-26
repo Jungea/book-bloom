@@ -32,7 +32,14 @@ export function createGameStore(shelfCapacity: number, initial?: Game): GameStor
   const update = (next: Game) => {
     if (next === state) return
     state = next
-    listeners.forEach((listener) => listener())
+    // 구독자 하나가 예외를 던져도 나머지(저장, 화면 갱신)는 계속 알린다.
+    listeners.forEach((listener) => {
+      try {
+        listener()
+      } catch (error) {
+        console.error('상태 구독자 처리 중 오류가 발생했습니다.', error)
+      }
+    })
   }
 
   const updateLibrary = (library: Game['library']) => {

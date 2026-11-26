@@ -7,6 +7,7 @@ import { loadGame } from './data/loadGame'
 import { attachPersistence } from './data/persistGame'
 import { GAME_STORE_KEY, LibraryScene } from './game/LibraryScene'
 import { TEMP_SHELF_CAPACITY } from './game/shelfLayout'
+import ReadingScreen from './reading/ReadingScreen'
 
 // 테스트 패널과 테스트 데이터는 개발 서버(DEV)나 `--mode debug` 빌드에서만 쓴다.
 // 일반 빌드에서는 조건이 상수로 평가되어 패널 코드가 번들에서 빠진다.
@@ -42,17 +43,23 @@ export function App() {
   }, [])
 
   if (!boot) return <main className="page" />
-  return <LibraryView store={boot.store} storage={boot.storage} loadNotice={boot.loadNotice} />
+  return <Shell store={boot.store} storage={boot.storage} loadNotice={boot.loadNotice} />
 }
 
-interface LibraryViewProps {
+type View = 'library' | 'reading'
+
+interface ShellProps {
   store: GameStore
   storage: GameStorage
   loadNotice: string | null
 }
 
-function LibraryView({ store, storage, loadNotice }: LibraryViewProps) {
-  const canvasHost = useRef<HTMLDivElement>(null)
+/**
+ * 도서관(가로형)과 독서관리(세로형)를 오가는 최상위 화면.
+ * 저장 연결은 여기에 두어 화면을 바꿔도 끊기지 않고, 상태는 저장소가 들고 있어 전환으로 초기화되지 않는다.
+ */
+function Shell({ store, storage, loadNotice }: ShellProps) {
+  const [view, setView] = useState<View>('library')
   const [saveNotice, setSaveNotice] = useState<string | null>(null)
 
   useEffect(() => {
@@ -60,13 +67,39 @@ function LibraryView({ store, storage, loadNotice }: LibraryViewProps) {
       store,
       storage,
       (error) => {
-        console.error('도서관을 저장하지 못했습니다.', error)
-        setSaveNotice('도서관을 저장하지 못했습니다. 변경 사항이 사라질 수 있습니다.')
+        console.error('저장하지 못했습니다.', error)
+        setSaveNotice('저장하지 못했습니다. 변경 사항이 사라질 수 있습니다.')
       },
       () => setSaveNotice(null),
     )
     return persistence.detach
   }, [store, storage])
+
+  const notice = saveNotice ?? loadNotice
+
+  return (
+    <main className={view === 'reading' ? 'page page--reading' : 'page'}>
+      {view === 'library' ? (
+        <LibraryView store={store} onOpenReading={() => setView('reading')} />
+      ) : (
+        <ReadingScreen store={store} onOpenLibrary={() => setView('library')} />
+      )}
+      {notice && (
+        <p className="storage-notice" role="alert">
+          {notice}
+        </p>
+      )}
+    </main>
+  )
+}
+
+interface LibraryViewProps {
+  store: GameStore
+  onOpenReading: () => void
+}
+
+function LibraryView({ store, onOpenReading }: LibraryViewProps) {
+  const canvasHost = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!canvasHost.current) return
@@ -104,22 +137,18 @@ function LibraryView({ store, storage, loadNotice }: LibraryViewProps) {
     }
   }, [store])
 
-  const notice = saveNotice ?? loadNotice
-
   return (
-    <main className="page">
+    <>
       <h1 className="sr-only">북블룸 도서관</h1>
       <div className="game-frame" ref={canvasHost} aria-label="북블룸 도서관 초기 화면" />
-      {notice && (
-        <p className="storage-notice" role="alert">
-          {notice}
-        </p>
-      )}
+      <button type="button" className="view-switch" onClick={onOpenReading}>
+        독서 관리
+      </button>
       {DebugPanel && (
         <Suspense fallback={null}>
           <DebugPanel store={store} />
         </Suspense>
       )}
-    </main>
+    </>
   )
 }
