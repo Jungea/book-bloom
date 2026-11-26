@@ -1,0 +1,357 @@
+{
+  "schemaVersion": 3,
+  "pack": "library-tycoon-assets-v3",
+  "designResolution": {
+    "width": 640,
+    "height": 360
+  },
+  "sourceResolution": {
+    "width": 1280,
+    "height": 720,
+    "scale": 2
+  },
+  "style": "flat rectangular pixel diagram; V3 recreates the supplied simple reference, not the denser V2 cafe style.",
+  "rendering": {
+    "scale": "integer-only",
+    "imageSmoothingEnabled": false,
+    "transparentObjects": true
+  },
+  "layout": {
+    "slots": [
+      80,
+      240,
+      400,
+      560
+    ],
+    "floorBaseline": 240,
+    "default": [
+      "circulation_desk",
+      "bookshelf_empty",
+      "bookshelf_empty",
+      "return_tray_empty"
+    ]
+  },
+  "palette": {
+    "wall": "#E7D9C7",
+    "floor": "#B9B5AF",
+    "statusBar": "#354948",
+    "wood": "#BD9160",
+    "metal": "#293334"
+  },
+  "assets": [
+    {
+      "id": "circulation_desk",
+      "path": "circulation/circulation_desk.png",
+      "logicalSize": [
+        128,
+        80
+      ],
+      "anchor": "bottom-center",
+      "collision": [
+        6,
+        16,
+        116,
+        64
+      ]
+    },
+    {
+      "id": "desk_monitor",
+      "path": "circulation/desk_monitor.png",
+      "logicalSize": [
+        64,
+        32
+      ],
+      "anchor": "bottom-center"
+    },
+    {
+      "id": "return_tray_empty",
+      "path": "circulation/return_tray_empty.png",
+      "logicalSize": [
+        96,
+        64
+      ],
+      "anchor": "bottom-center"
+    },
+    {
+      "id": "bookshelf_empty",
+      "path": "bookshelves/bookshelf_empty.png",
+      "logicalSize": [
+        128,
+        176
+      ],
+      "anchor": "bottom-center",
+      "bookShelfRows": [
+        36,
+        72,
+        108,
+        144
+      ]
+    },
+    {
+      "id": "librarian_idle",
+      "path": "characters/librarian_idle.png",
+      "logicalSize": [
+        32,
+        48
+      ],
+      "anchor": "bottom-center",
+      "collision": [
+        10,
+        19,
+        14,
+        29
+      ]
+    },
+    {
+      "id": "shared_reading_table",
+      "path": "furniture/shared_reading_table.png",
+      "logicalSize": [
+        288,
+        96
+      ],
+      "slots": 2,
+      "anchor": "bottom-center"
+    }
+  ],
+  "extensions": "Featured displays, circulation equipment, reading furniture, boards, trophy cabinet, sofa and plant extend the reference style; they do not appear in the supplied example.",
+  "fileIndex": [
+    {
+      "path": "preview.png",
+      "pixels": [
+        41017
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "backgrounds\\baseboard_tile.png",
+      "pixels": [
+        159
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "backgrounds\\floor_tile.png",
+      "pixels": [
+        242
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "backgrounds\\wall_tile.png",
+      "pixels": [
+        183
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "books\\book_spine_blue.png",
+      "pixels": [
+        191
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "books\\book_spine_cream.png",
+      "pixels": [
+        184
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "books\\book_spine_muted_red.png",
+      "pixels": [
+        183
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "books\\book_spine_ochre.png",
+      "pixels": [
+        175
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "books\\book_spine_taupe.png",
+      "pixels": [
+        192
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "books\\book_spine_teal.png",
+      "pixels": [
+        181
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "bookshelves\\bookshelf_empty.png",
+      "pixels": [
+        2285
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "bookshelves\\bookshelf_filled_preview.png",
+      "pixels": [
+        7908
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "bookshelves\\featured_display_empty.png",
+      "pixels": [
+        3093
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "bookshelves\\low_display_empty.png",
+      "pixels": [
+        1772
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "characters\\librarian_idle.png",
+      "pixels": [
+        716
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "characters\\librarian_walk_strip.png",
+      "pixels": [
+        2240
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "circulation\\book_cart_empty.png",
+      "pixels": [
+        1266
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "circulation\\circulation_desk.png",
+      "pixels": [
+        2018
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "circulation\\desk_monitor.png",
+      "pixels": [
+        506
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "circulation\\return_tray_empty.png",
+      "pixels": [
+        1169
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "circulation\\returned_books.png",
+      "pixels": [
+        319
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "circulation\\search_terminal.png",
+      "pixels": [
+        1878
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "circulation\\self_checkout.png",
+      "pixels": [
+        2682
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "effects\\book_added.png",
+      "pixels": [
+        361
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "furniture\\large_plant.png",
+      "pixels": [
+        1361
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "furniture\\notice_board_frame.png",
+      "pixels": [
+        2177
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "furniture\\reading_goal_board.png",
+      "pixels": [
+        2341
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "furniture\\shared_reading_table.png",
+      "pixels": [
+        2496
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "furniture\\sofa.png",
+      "pixels": [
+        1095
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "furniture\\study_carrel.png",
+      "pixels": [
+        1719
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "furniture\\trophy_cabinet_empty.png",
+      "pixels": [
+        2624
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "ui\\genre_sign_frame.png",
+      "pixels": [
+        323
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "ui\\promotion_sign_frame.png",
+      "pixels": [
+        419
+      ],
+      "purpose": "generated V3 pixel asset"
+    },
+    {
+      "path": "ui\\slot_selection.png",
+      "pixels": [
+        250
+      ],
+      "purpose": "generated V3 pixel asset"
+    }
+  ]
+}

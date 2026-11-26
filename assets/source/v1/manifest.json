@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "pack": "library-tycoon-mvp",
+  "tileSize": 16,
+  "designResolution": { "width": 640, "height": 360 },
+  "rendering": { "scale": "integer-only", "imageSmoothingEnabled": false, "background": "transparent unless noted" },
+  "palette": { "outline": "#2B1B18", "walnut": "#8B4B25", "wood": "#B9672D", "wall": "#F0D7AD", "floor": "#394452", "baseboard": "#9B4D3C", "red": "#B94A49", "ochre": "#D69A3B", "teal": "#438C8C", "blue": "#4C6FA9", "green": "#64895A" },
+  "assets": [
+    { "id": "wall_tile", "path": "backgrounds/wall_tile.png", "size": [16,16], "kind": "tile", "alpha": false, "repeat": "xy" },
+    { "id": "floor_tile", "path": "backgrounds/floor_tile.png", "size": [16,16], "kind": "tile", "alpha": false, "repeat": "xy" },
+    { "id": "baseboard_tile", "path": "backgrounds/baseboard_tile.png", "size": [16,8], "kind": "tile", "alpha": false, "repeat": "x" },
+    { "id": "empty_bookshelf", "path": "bookshelves/empty_bookshelf.png", "size": [96,128], "kind": "placeable", "alpha": true, "anchor": "bottom-center", "bookShelfRows": [47,78,109] },
+    { "id": "book_spines", "path": "books/", "count": 8, "kind": "placeable", "alpha": true, "anchor": "bottom-left" }
+  ],
+  "nextStage": ["characters: librarian + 4-direction walk sheet", "furniture: desk, chair, lamp, plant", "ui: directional buttons, book detail frame", "effects: coin and new-book sparkle"]
+}

@@ -1,0 +1,861 @@
+{
+  "schemaVersion": 2,
+  "pack": "library-tycoon-cafe-v2",
+  "designResolution": {
+    "width": 640,
+    "height": 360
+  },
+  "sourceResolution": {
+    "height": 720,
+    "scale": 2,
+    "width": 1280
+  },
+  "fourSlots": {
+    "logicalWidth": 160,
+    "facilityBaselineY": 240,
+    "minimumSideMargin": 8,
+    "centers": [
+      80,
+      240,
+      400,
+      560
+    ]
+  },
+  "rendering": {
+    "integerScaleOnly": true,
+    "imageSmoothingEnabled": false
+  },
+  "palette": {
+    "beigeHi": "#F5EDE4",
+    "wood": "#C78E59",
+    "teal": "#527D7D",
+    "grout": "#929496",
+    "beige": "#E8DDD0",
+    "green": "#5C8580",
+    "shadow": "#2B3032",
+    "tile": "#B9B7B4",
+    "cream": "#FFF9EE",
+    "leaf": "#638850",
+    "blue": "#598190",
+    "leafHi": "#A5BE70",
+    "iron": "#343B3F",
+    "pot": "#E0D2C0",
+    "red": "#B96866",
+    "woodHi": "#F0C18C",
+    "ironHi": "#626B70",
+    "ink": "#252B2E",
+    "woodDark": "#875F42",
+    "gold": "#E2B36A"
+  },
+  "assets": [
+    {
+      "id": "baseboard_tile",
+      "path": "backgrounds\\baseboard_tile.png",
+      "pixelSize": [
+        64,
+        16
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "floor_tile",
+      "path": "backgrounds\\floor_tile.png",
+      "pixelSize": [
+        64,
+        64
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "sunlight_overlay",
+      "path": "backgrounds\\sunlight_overlay.png",
+      "pixelSize": [
+        256,
+        160
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "wall_light",
+      "path": "backgrounds\\wall_light.png",
+      "pixelSize": [
+        64,
+        64
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "wall_panel_tile",
+      "path": "backgrounds\\wall_panel_tile.png",
+      "pixelSize": [
+        64,
+        64
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "window",
+      "path": "backgrounds\\window.png",
+      "pixelSize": [
+        192,
+        224
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "book_cover_placeholder",
+      "path": "books\\book_cover_placeholder.png",
+      "pixelSize": [
+        48,
+        64
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "book_spine_01",
+      "path": "books\\book_spine_01.png",
+      "pixelSize": [
+        20,
+        52
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "book_spine_02",
+      "path": "books\\book_spine_02.png",
+      "pixelSize": [
+        24,
+        52
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "book_spine_03",
+      "path": "books\\book_spine_03.png",
+      "pixelSize": [
+        20,
+        44
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "book_spine_04",
+      "path": "books\\book_spine_04.png",
+      "pixelSize": [
+        20,
+        40
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "book_spine_05",
+      "path": "books\\book_spine_05.png",
+      "pixelSize": [
+        28,
+        52
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "book_spine_06",
+      "path": "books\\book_spine_06.png",
+      "pixelSize": [
+        16,
+        48
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "book_spine_07",
+      "path": "books\\book_spine_07.png",
+      "pixelSize": [
+        24,
+        42
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "book_spine_08",
+      "path": "books\\book_spine_08.png",
+      "pixelSize": [
+        16,
+        36
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "book_spine_highlight",
+      "path": "books\\book_spine_highlight.png",
+      "pixelSize": [
+        32,
+        56
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "bookshelf_empty",
+      "path": "bookshelves\\bookshelf_empty.png",
+      "pixelSize": [
+        256,
+        352
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "bookshelf_large_empty",
+      "path": "bookshelves\\bookshelf_large_empty.png",
+      "pixelSize": [
+        288,
+        384
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "bookshelf_shadow",
+      "path": "bookshelves\\bookshelf_shadow.png",
+      "pixelSize": [
+        256,
+        48
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "featured_display_empty",
+      "path": "bookshelves\\featured_display_empty.png",
+      "pixelSize": [
+        256,
+        224
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "featured_display_front_layer",
+      "path": "bookshelves\\featured_display_front_layer.png",
+      "pixelSize": [
+        256,
+        224
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "low_display_empty",
+      "path": "bookshelves\\low_display_empty.png",
+      "pixelSize": [
+        256,
+        160
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "low_display_front_layer",
+      "path": "bookshelves\\low_display_front_layer.png",
+      "pixelSize": [
+        256,
+        160
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "librarian_idle",
+      "path": "characters\\librarian_idle.png",
+      "pixelSize": [
+        256,
+        192
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "librarian_walk",
+      "path": "characters\\librarian_walk.png",
+      "pixelSize": [
+        256,
+        192
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "visitor_idle",
+      "path": "characters\\visitor_idle.png",
+      "pixelSize": [
+        256,
+        192
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "visitor_read",
+      "path": "characters\\visitor_read.png",
+      "pixelSize": [
+        256,
+        192
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "visitor_walk",
+      "path": "characters\\visitor_walk.png",
+      "pixelSize": [
+        256,
+        192
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "book_cart_books_layer",
+      "path": "circulation\\book_cart_books_layer.png",
+      "pixelSize": [
+        96,
+        48
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "book_cart_empty",
+      "path": "circulation\\book_cart_empty.png",
+      "pixelSize": [
+        128,
+        128
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "circulation_desk",
+      "path": "circulation\\circulation_desk.png",
+      "pixelSize": [
+        256,
+        160
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "circulation_sign_frame",
+      "path": "circulation\\circulation_sign_frame.png",
+      "pixelSize": [
+        160,
+        48
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "desk_terminal",
+      "path": "circulation\\desk_terminal.png",
+      "pixelSize": [
+        64,
+        64
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "return_tray_empty",
+      "path": "circulation\\return_tray_empty.png",
+      "pixelSize": [
+        192,
+        128
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "return_tray_full",
+      "path": "circulation\\return_tray_full.png",
+      "pixelSize": [
+        192,
+        128
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "returned_books_layer",
+      "path": "circulation\\returned_books_layer.png",
+      "pixelSize": [
+        160,
+        64
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "search_terminal_body",
+      "path": "circulation\\search_terminal_body.png",
+      "pixelSize": [
+        160,
+        192
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "search_terminal_screen",
+      "path": "circulation\\search_terminal_screen.png",
+      "pixelSize": [
+        96,
+        72
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "self_checkout_body",
+      "path": "circulation\\self_checkout_body.png",
+      "pixelSize": [
+        128,
+        224
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "self_checkout_screen_active",
+      "path": "circulation\\self_checkout_screen_active.png",
+      "pixelSize": [
+        52,
+        58
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "self_checkout_screen_complete",
+      "path": "circulation\\self_checkout_screen_complete.png",
+      "pixelSize": [
+        52,
+        58
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "self_checkout_screen_idle",
+      "path": "circulation\\self_checkout_screen_idle.png",
+      "pixelSize": [
+        52,
+        58
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "book_added",
+      "path": "effects\\book_added.png",
+      "pixelSize": [
+        96,
+        96
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "armchair",
+      "path": "furniture\\armchair.png",
+      "pixelSize": [
+        256,
+        160
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "chair",
+      "path": "furniture\\chair.png",
+      "pixelSize": [
+        96,
+        128
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "cushion",
+      "path": "furniture\\cushion.png",
+      "pixelSize": [
+        96,
+        48
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "notice_board_frame",
+      "path": "furniture\\notice_board_frame.png",
+      "pixelSize": [
+        256,
+        192
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "notice_card",
+      "path": "furniture\\notice_card.png",
+      "pixelSize": [
+        72,
+        48
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "plant",
+      "path": "furniture\\plant.png",
+      "pixelSize": [
+        96,
+        192
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "reading_goal_board_frame",
+      "path": "furniture\\reading_goal_board_frame.png",
+      "pixelSize": [
+        256,
+        192
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "reading_table",
+      "path": "furniture\\reading_table.png",
+      "pixelSize": [
+        224,
+        144
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "rug",
+      "path": "furniture\\rug.png",
+      "pixelSize": [
+        256,
+        96
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "shared_reading_chair",
+      "path": "furniture\\shared_reading_chair.png",
+      "pixelSize": [
+        80,
+        96
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "shared_reading_table",
+      "path": "furniture\\shared_reading_table.png",
+      "pixelSize": [
+        576,
+        192
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "side_table",
+      "path": "furniture\\side_table.png",
+      "pixelSize": [
+        96,
+        96
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "study_carrel_chair",
+      "path": "furniture\\study_carrel_chair.png",
+      "pixelSize": [
+        80,
+        96
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "study_carrel_desk",
+      "path": "furniture\\study_carrel_desk.png",
+      "pixelSize": [
+        224,
+        160
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "trophy_cabinet_empty",
+      "path": "furniture\\trophy_cabinet_empty.png",
+      "pixelSize": [
+        256,
+        320
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "trophy_gold",
+      "path": "furniture\\trophy_gold.png",
+      "pixelSize": [
+        40,
+        52
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "trophy_locked",
+      "path": "furniture\\trophy_locked.png",
+      "pixelSize": [
+        40,
+        52
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "wall_art_frame",
+      "path": "furniture\\wall_art_frame.png",
+      "pixelSize": [
+        128,
+        96
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "add_book",
+      "path": "ui\\add_book.png",
+      "pixelSize": [
+        48,
+        48
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "arrow_up",
+      "path": "ui\\arrow_up.png",
+      "pixelSize": [
+        48,
+        48
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "genre_sign_frame",
+      "path": "ui\\genre_sign_frame.png",
+      "pixelSize": [
+        224,
+        32
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "promotion_sign_frame",
+      "path": "ui\\promotion_sign_frame.png",
+      "pixelSize": [
+        224,
+        48
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "review",
+      "path": "ui\\review.png",
+      "pixelSize": [
+        48,
+        48
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    },
+    {
+      "id": "slot_highlight",
+      "path": "ui\\slot_highlight.png",
+      "pixelSize": [
+        288,
+        384
+      ],
+      "format": "png",
+      "alpha": true,
+      "anchor": "bottom-center",
+      "layer": "objects"
+    }
+  ],
+  "notes": [
+    "All book spines and covers are separate from shelves.",
+    "Frames intentionally contain no text, counts, titles, or book covers.",
+    "No coffee-selling system assets included."
+  ]
+}

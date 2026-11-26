@@ -1,0 +1,331 @@
+﻿{
+    "rendering":  {
+                      "imageSmoothingEnabled":  false,
+                      "integerScale":  true
+                  },
+    "reference":  "original generated pixel-art image, 1672x940 (preserved separately)",
+    "designResolution":  {
+                             "height":  360,
+                             "width":  640
+                         },
+    "assets":  [
+                   {
+                       "alpha":  false,
+                       "path":  "preview.png",
+                       "size":  [
+                                    1280,
+                                    720
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "reference_original.png",
+                       "size":  [
+                                    1672,
+                                    941
+                                ]
+                   },
+                   {
+                       "alpha":  false,
+                       "path":  "backgrounds/baseboard_tile.png",
+                       "size":  [
+                                    32,
+                                    16
+                                ]
+                   },
+                   {
+                       "alpha":  false,
+                       "path":  "backgrounds/floor_tile.png",
+                       "size":  [
+                                    64,
+                                    64
+                                ]
+                   },
+                   {
+                       "alpha":  false,
+                       "path":  "backgrounds/wall_tile.png",
+                       "size":  [
+                                    32,
+                                    32
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "books/book_spine_blue.png",
+                       "size":  [
+                                    18,
+                                    58
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "books/book_spine_cream.png",
+                       "size":  [
+                                    16,
+                                    50
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "books/book_spine_gray.png",
+                       "size":  [
+                                    20,
+                                    48
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "books/book_spine_red.png",
+                       "size":  [
+                                    16,
+                                    52
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "books/book_spine_taupe.png",
+                       "size":  [
+                                    16,
+                                    56
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "bookshelves/bookshelf_empty.png",
+                       "size":  [
+                                    256,
+                                    352
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "bookshelves/featured_display_empty.png",
+                       "size":  [
+                                    256,
+                                    224
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "bookshelves/low_display_empty.png",
+                       "size":  [
+                                    256,
+                                    160
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "characters/librarian_idle.png",
+                       "size":  [
+                                    64,
+                                    96
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "characters/visitor_idle.png",
+                       "size":  [
+                                    64,
+                                    96
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "circulation/book_cart_empty.png",
+                       "size":  [
+                                    128,
+                                    128
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "circulation/circulation_desk.png",
+                       "size":  [
+                                    256,
+                                    160
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "circulation/desk_monitor.png",
+                       "size":  [
+                                    100,
+                                    88
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "circulation/returned_books.png",
+                       "size":  [
+                                    96,
+                                    32
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "circulation/return_tray_empty.png",
+                       "size":  [
+                                    192,
+                                    128
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "circulation/search_terminal.png",
+                       "size":  [
+                                    160,
+                                    192
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "circulation/self_checkout.png",
+                       "size":  [
+                                    128,
+                                    224
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "effects/book_added.png",
+                       "size":  [
+                                    48,
+                                    48
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "furniture/large_plant.png",
+                       "size":  [
+                                    96,
+                                    192
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "furniture/notice_board_frame.png",
+                       "size":  [
+                                    256,
+                                    192
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "furniture/reading_goal_board.png",
+                       "size":  [
+                                    256,
+                                    192
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "furniture/shared_reading_table.png",
+                       "size":  [
+                                    576,
+                                    192
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "furniture/sofa.png",
+                       "size":  [
+                                    256,
+                                    160
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "furniture/study_carrel.png",
+                       "size":  [
+                                    224,
+                                    160
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "furniture/trophy_cabinet_empty.png",
+                       "size":  [
+                                    256,
+                                    320
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "ui/genre_sign_frame.png",
+                       "size":  [
+                                    224,
+                                    32
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "ui/promotion_sign_frame.png",
+                       "size":  [
+                                    224,
+                                    48
+                                ]
+                   },
+                   {
+                       "alpha":  true,
+                       "path":  "ui/slot_selection.png",
+                       "size":  [
+                                    64,
+                                    64
+                                ]
+                   },
+                   {
+                       "alpha":  false,
+                       "path":  "ui/status_bar.png",
+                       "size":  [
+                                    1280,
+                                    64
+                                ]
+                   }
+               ],
+    "layout":  {
+                   "note":  "V4 uses four equal logical slots; all PNG source dimensions and the preview are 2x.",
+                   "initialSlots":  [
+                                        {
+                                            "asset":  "circulation/circulation_desk.png",
+                                            "centerX":  80,
+                                            "baselineY":  240,
+                                            "index":  1
+                                        },
+                                        {
+                                            "asset":  "bookshelves/bookshelf_empty.png",
+                                            "centerX":  240,
+                                            "baselineY":  240,
+                                            "index":  2
+                                        },
+                                        {
+                                            "state":  "empty",
+                                            "asset":  null,
+                                            "centerX":  400,
+                                            "baselineY":  240,
+                                            "index":  3
+                                        },
+                                        {
+                                            "asset":  "circulation/return_tray_empty.png",
+                                            "centerX":  560,
+                                            "baselineY":  240,
+                                            "index":  4
+                                        }
+                                    ],
+                   "floorBaseline":  240,
+                   "slotCenters":  [
+                                       80,
+                                       240,
+                                       400,
+                                       560
+                                   ],
+                   "slotWidth":  160,
+                   "scene":  "desk / bookshelf / empty slot / return tray"
+               },
+    "pack":  "library-tycoon-assets-v4",
+    "schemaVersion":  4,
+    "sourceResolution":  {
+                             "scale":  2,
+                             "width":  1280,
+                             "height":  720
+                         }
+}
