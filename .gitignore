@@ -4,3 +4,12 @@ dist/
 .env.*
 !.env.example
 *.local
+android/.gradle/
+android/.idea/
+android/build/
+android/app/build/
+android/local.properties
+android/capacitor.settings.gradle
+android/app/capacitor.build.gradle
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json

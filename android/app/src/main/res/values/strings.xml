@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BookBloom</string>
+    <string name="title_activity_main">BookBloom</string>
+    <string name="package_name">com.jungea.bookbloom</string>
+    <string name="custom_url_scheme">com.jungea.bookbloom</string>
+</resources>

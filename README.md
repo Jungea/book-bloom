@@ -13,6 +13,12 @@ npm run dev
 
 브라우저에서 Vite가 안내하는 로컬 주소를 엽니다. 타입 검사와 빌드는 `npm run build`로 확인합니다. 현재 화면은 가구 배치 검증용이며 독서 기록·손님·대출·저장은 아직 구현하지 않았습니다. 640×360은 V4 제작 좌표로 사용 중이며 최종 논리 해상도는 Android 실기기 검증 후 결정합니다.
 
+## Android 디버그 APK
+
+Android Studio와 Android SDK가 설치된 환경에서 `npm run android:sync`로 웹 빌드를 Android 프로젝트에 반영합니다. 그 뒤 `android/`에서 `gradlew.bat assembleDebug`를 실행하면 `android/app/build/outputs/apk/debug/app-debug.apk`가 생성됩니다. Gradle이 SDK 경로를 찾지 못하면 `ANDROID_HOME`을 SDK 폴더로 지정합니다. `npm run android:open`으로 Android Studio에서 프로젝트를 열 수도 있습니다.
+
+현재 Android 화면은 도서관 검증을 위해 가로 방향으로 고정했습니다. 독서관리 화면 추가 시 방향 전환 방식을 다시 결정해야 합니다. 앱 ID `com.jungea.bookbloom`도 개발용 설정이며 출시 전 확인이 필요합니다. 에뮬레이터 설치·화면 표시는 확인했지만 실기기와 터치 입력은 아직 검증하지 않았습니다.
+
 ## 문서
 
 - AI 개발 시작 가이드: `docs/00-ai-guide.md`
