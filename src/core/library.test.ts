@@ -4,6 +4,8 @@ import {
   acquireBooks,
   createLibrary,
   hasBook,
+  removeBook,
+  renameBook,
   shelvedCount,
   type LibraryBook,
 } from './library'
@@ -73,5 +75,58 @@ describe('acquireBook', () => {
     expect(hasBook(state, 'b1')).toBe(true)
     expect(hasBook(state, 'b2')).toBe(true)
     expect(hasBook(state, 'b3')).toBe(false)
+  })
+})
+
+describe('removeBook', () => {
+  it('책장 도서를 제거하면 그 자리만 비고 다른 도서는 움직이지 않는다', () => {
+    const state = acquireBooks(createLibrary(4), books(3))
+    const next = removeBook(state, 'b2')
+    expect(next.shelf.map((b) => b?.id ?? null)).toEqual(['b1', null, 'b3', null])
+  })
+
+  it('책장에서 빠져 빈 슬롯이 생기면 보관함의 가장 오래된 도서가 올라온다', () => {
+    const state = acquireBooks(createLibrary(2), books(4)) // 책장 b1 b2, 보관함 b3 b4
+    const next = removeBook(state, 'b1')
+    expect(next.shelf.map((b) => b?.id)).toEqual(['b3', 'b2'])
+    expect(next.storage.map((b) => b.id)).toEqual(['b4'])
+  })
+
+  it('보관함 도서를 제거해도 책장은 그대로다', () => {
+    const state = acquireBooks(createLibrary(1), books(3))
+    const next = removeBook(state, 'b2')
+    expect(next.shelf.map((b) => b?.id)).toEqual(['b1'])
+    expect(next.storage.map((b) => b.id)).toEqual(['b3'])
+  })
+
+  it('없는 도서는 상태를 바꾸지 않는다', () => {
+    const state = acquireBooks(createLibrary(2), books(1))
+    expect(removeBook(state, 'zzz')).toBe(state)
+  })
+
+  it('제거한 자리는 다음 획득이 앞쪽 빈 슬롯부터 채운다', () => {
+    const state = removeBook(acquireBooks(createLibrary(3), books(3)), 'b1')
+    const next = acquireBook(state, book(9))
+    expect(next.shelf.map((b) => b?.id)).toEqual(['b9', 'b2', 'b3'])
+  })
+
+  it('원래 상태를 변경하지 않는다', () => {
+    const state = acquireBooks(createLibrary(2), books(2))
+    removeBook(state, 'b1')
+    expect(state.shelf.map((b) => b?.id)).toEqual(['b1', 'b2'])
+  })
+})
+
+describe('renameBook', () => {
+  it('책장과 보관함의 도서 제목을 바꾸고 위치는 유지한다', () => {
+    const state = acquireBooks(createLibrary(1), books(2))
+    const next = renameBook(renameBook(state, 'b1', '새 제목 1'), 'b2', '새 제목 2')
+    expect(next.shelf[0]).toEqual({ id: 'b1', title: '새 제목 1' })
+    expect(next.storage[0]).toEqual({ id: 'b2', title: '새 제목 2' })
+  })
+
+  it('없는 도서는 상태를 바꾸지 않는다', () => {
+    const state = acquireBooks(createLibrary(1), books(1))
+    expect(renameBook(state, 'zzz', 'x')).toBe(state)
   })
 })
