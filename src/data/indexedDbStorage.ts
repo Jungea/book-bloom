@@ -1,5 +1,5 @@
-import type { LibrarySnapshot } from '../core/librarySnapshot'
-import type { LibraryStorage } from './libraryStorage'
+import type { GameSnapshot } from '../reading/gameSnapshot'
+import type { GameStorage } from './gameStorage'
 
 const STORE_NAME = 'game'
 const LIBRARY_KEY = 'library'
@@ -37,7 +37,7 @@ function transact<T>(
 }
 
 /** 브라우저 내장 IndexedDB를 쓰는 저장소. 데이터베이스 이름으로 일반 데이터와 테스트 데이터를 나눈다. */
-export function createIndexedDbStorage(databaseName: string): LibraryStorage {
+export function createIndexedDbStorage(databaseName: string): GameStorage {
   let opened: Promise<IDBDatabase> | null = null
   const database = () => {
     opened ??= openDatabase(databaseName).catch((error: unknown) => {
@@ -53,7 +53,7 @@ export function createIndexedDbStorage(databaseName: string): LibraryStorage {
       const value = await transact<unknown>(db, 'readonly', (store) => store.get(LIBRARY_KEY))
       return value ?? null
     },
-    async save(snapshot: LibrarySnapshot) {
+    async save(snapshot: GameSnapshot) {
       const db = await database()
       await transact(db, 'readwrite', (store) => store.put(snapshot, LIBRARY_KEY))
     },

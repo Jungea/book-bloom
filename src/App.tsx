@@ -1,11 +1,11 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import Phaser from 'phaser'
-import { createLibraryStore, type LibraryStore } from './core/libraryStore'
+import { createGameStore, type GameStore } from './reading/gameStore'
 import { createIndexedDbStorage } from './data/indexedDbStorage'
-import type { LibraryStorage } from './data/libraryStorage'
-import { loadLibrary } from './data/loadLibrary'
-import { attachPersistence } from './data/persistLibrary'
-import { LIBRARY_STORE_KEY, LibraryScene } from './game/LibraryScene'
+import type { GameStorage } from './data/gameStorage'
+import { loadGame } from './data/loadGame'
+import { attachPersistence } from './data/persistGame'
+import { GAME_STORE_KEY, LibraryScene } from './game/LibraryScene'
 import { TEMP_SHELF_CAPACITY } from './game/shelfLayout'
 
 // 테스트 패널과 테스트 데이터는 개발 서버(DEV)나 `--mode debug` 빌드에서만 쓴다.
@@ -16,22 +16,22 @@ const DebugPanel = DEBUG_BUILD ? lazy(() => import('./debug/DebugPanel')) : null
 const DATABASE_NAME = DEBUG_BUILD ? 'bookbloom-debug' : 'bookbloom'
 
 interface Boot {
-  store: LibraryStore
-  storage: LibraryStorage
+  store: GameStore
+  storage: GameStorage
   loadNotice: string | null
 }
 
 export function App() {
   const [boot, setBoot] = useState<Boot | null>(null)
 
-  // 저장된 도서관을 먼저 불러온 뒤 게임을 시작한다. 책이 비었다가 채워지는 깜빡임을 막는다.
+  // 저장된 게임(독서 기록·도서관)을 먼저 불러온 뒤 게임을 시작한다. 책이 비었다가 채워지는 깜빡임을 막는다.
   useEffect(() => {
     let cancelled = false
     const storage = createIndexedDbStorage(DATABASE_NAME)
-    void loadLibrary(storage, TEMP_SHELF_CAPACITY).then(({ state, notice }) => {
+    void loadGame(storage, TEMP_SHELF_CAPACITY).then(({ game, notice }) => {
       if (cancelled) return
       setBoot({
-        store: createLibraryStore(TEMP_SHELF_CAPACITY, state),
+        store: createGameStore(TEMP_SHELF_CAPACITY, game),
         storage,
         loadNotice: notice,
       })
@@ -46,8 +46,8 @@ export function App() {
 }
 
 interface LibraryViewProps {
-  store: LibraryStore
-  storage: LibraryStorage
+  store: GameStore
+  storage: GameStorage
   loadNotice: string | null
 }
 
@@ -86,7 +86,7 @@ function LibraryView({ store, storage, loadNotice }: LibraryViewProps) {
         autoCenter: Phaser.Scale.CENTER_BOTH,
       },
       callbacks: {
-        preBoot: (instance) => instance.registry.set(LIBRARY_STORE_KEY, store),
+        preBoot: (instance) => instance.registry.set(GAME_STORE_KEY, store),
       },
       scene: [LibraryScene],
     })
