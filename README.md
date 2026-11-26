@@ -21,7 +21,7 @@ npm run dev
 
 Android Studio와 Android SDK가 설치된 환경에서 `npm run android:sync`로 웹 빌드를 Android 프로젝트에 반영합니다. 테스트 패널이 필요한 터치 검증용 디버그 APK는 `npm run android:sync:debug`로 반영하세요(패널 포함 빌드). 출시용 빌드는 항상 `npm run android:sync`를 사용합니다. 그 뒤 `android/`에서 `gradlew.bat assembleDebug`를 실행하면 `android/app/build/outputs/apk/debug/app-debug.apk`가 생성됩니다. Gradle이 SDK 경로를 찾지 못하면 `ANDROID_HOME`을 SDK 폴더로 지정합니다. `npm run android:open`으로 Android Studio에서 프로젝트를 열 수도 있습니다.
 
-현재 Android 화면은 도서관 검증을 위해 가로 방향으로 고정했습니다. 독서관리 화면 추가 시 방향 전환 방식을 다시 결정해야 합니다. 앱 ID는 등록한 도메인 `bookbloom.kro.kr`을 뒤집은 `kr.kro.bookbloom`입니다. 에뮬레이터와 Android 13 실기기에서 설치·화면 표시를 확인했습니다. 긴 화면에서는 640×360 기본 장면을 가운데 두고 벽·바닥·상태바를 좌우로 확장해 앱 영역을 채웁니다. 터치 입력은 아직 검증하지 않았습니다.
+현재 Android 화면은 도서관 검증을 위해 가로 방향으로 고정했습니다. 독서관리 화면 추가 시 방향 전환 방식을 다시 결정해야 합니다. 앱 ID는 등록한 도메인 `bookbloom.kro.kr`을 뒤집은 `kr.kro.bookbloom`입니다. 에뮬레이터와 Android 13 실기기에서 설치·화면 표시를 확인했습니다. 긴 화면에서는 640×360 기본 장면을 가운데 두고 벽·바닥·상태바를 좌우로 확장해 앱 영역을 채웁니다. 개발자 패널의 Android 입력은 ADB 터치 명령으로 확인했으며 손가락 직접 조작은 아직 미실시입니다.
 
 ## 문서
 

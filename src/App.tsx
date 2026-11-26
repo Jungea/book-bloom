@@ -40,7 +40,7 @@ export function App() {
 
     const observer = new ResizeObserver(() => {
       const width = logicalWidth()
-      if (game.scale.width !== width) game.scale.resize(width, 360)
+      if (game.scale.width !== width) game.scale.setGameSize(width, 360)
     })
     observer.observe(host)
 
