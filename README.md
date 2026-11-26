@@ -13,9 +13,13 @@ npm run dev
 
 브라우저에서 Vite가 안내하는 로컬 주소를 엽니다. 타입 검사와 빌드는 `npm run build`로 확인합니다. 현재 화면은 가구 배치 검증용이며 독서 기록·손님·대출·저장은 아직 구현하지 않았습니다. 640×360은 V4 제작 좌표로 사용 중이며 최종 논리 해상도는 Android 실기기 검증 후 결정합니다.
 
+## 개발자 테스트 패널
+
+화면 왼쪽 아래의 테스트 패널(`도서 1권`, `도서 10권`, `책장 채우기`, `초기화`)로 도서 획득과 책장 진열을 반복 확인합니다. 패널은 실제 게임 코어(`src/core`)를 호출하며 저장은 하지 않습니다. 패널은 `npm run dev`와 `npm run build:debug`(`--mode debug`)에서만 켜집니다. `npm run build`의 일반 빌드에는 패널 코드가 포함되지 않습니다. 책장 용량(`TEMP_SHELF_CAPACITY`)은 기획이 정해지지 않아 선반에 들어가는 개수를 쓰는 임시 상수입니다. 자동 테스트는 `npm test`로 실행합니다.
+
 ## Android 디버그 APK
 
-Android Studio와 Android SDK가 설치된 환경에서 `npm run android:sync`로 웹 빌드를 Android 프로젝트에 반영합니다. 그 뒤 `android/`에서 `gradlew.bat assembleDebug`를 실행하면 `android/app/build/outputs/apk/debug/app-debug.apk`가 생성됩니다. Gradle이 SDK 경로를 찾지 못하면 `ANDROID_HOME`을 SDK 폴더로 지정합니다. `npm run android:open`으로 Android Studio에서 프로젝트를 열 수도 있습니다.
+Android Studio와 Android SDK가 설치된 환경에서 `npm run android:sync`로 웹 빌드를 Android 프로젝트에 반영합니다. 테스트 패널이 필요한 터치 검증용 디버그 APK는 `npm run android:sync:debug`로 반영하세요(패널 포함 빌드). 출시용 빌드는 항상 `npm run android:sync`를 사용합니다. 그 뒤 `android/`에서 `gradlew.bat assembleDebug`를 실행하면 `android/app/build/outputs/apk/debug/app-debug.apk`가 생성됩니다. Gradle이 SDK 경로를 찾지 못하면 `ANDROID_HOME`을 SDK 폴더로 지정합니다. `npm run android:open`으로 Android Studio에서 프로젝트를 열 수도 있습니다.
 
 현재 Android 화면은 도서관 검증을 위해 가로 방향으로 고정했습니다. 독서관리 화면 추가 시 방향 전환 방식을 다시 결정해야 합니다. 앱 ID는 등록한 도메인 `bookbloom.kro.kr`을 뒤집은 `kr.kro.bookbloom`입니다. 에뮬레이터와 Android 13 실기기에서 설치·화면 표시를 확인했습니다. 긴 화면에서는 640×360 기본 장면을 가운데 두고 벽·바닥·상태바를 좌우로 확장해 앱 영역을 채웁니다. 터치 입력은 아직 검증하지 않았습니다.
 
