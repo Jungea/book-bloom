@@ -94,6 +94,7 @@ function LibraryView({ store, storage, loadNotice }: LibraryViewProps) {
     const observer = new ResizeObserver(() => {
       const width = logicalWidth()
       if (game.scale.width !== width) game.scale.setGameSize(width, 360)
+      game.scale.refresh()
     })
     observer.observe(host)
 
