@@ -1,4 +1,4 @@
-package com.jungea.bookbloom;
+package kr.kro.bookbloom;
 
 import com.getcapacitor.BridgeActivity;
 
