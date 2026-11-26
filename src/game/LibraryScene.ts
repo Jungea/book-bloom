@@ -69,7 +69,7 @@ export class LibraryScene extends Phaser.Scene {
     this.add.tileSprite(width / 2, FLOOR_Y, width, 8, 'baseboard').setTileScale(0.5)
 
     this.add.image(offset + SLOT_CENTERS[0], FLOOR_Y, 'desk').setOrigin(0.5, 1).setScale(0.5)
-    this.add.image(offset + SLOT_CENTERS[0], FLOOR_Y - 76, 'monitor').setOrigin(0.5, 1).setScale(0.5)
+    this.add.image(offset + SLOT_CENTERS[0], FLOOR_Y - 73, 'monitor').setOrigin(0.5, 1).setScale(0.5)
     this.add.image(offset + SLOT_CENTERS[1], FLOOR_Y, 'bookshelf').setOrigin(0.5, 1).setScale(0.5)
     this.add.image(offset + SLOT_CENTERS[3], FLOOR_Y, 'returnTray').setOrigin(0.5, 1).setScale(0.5)
 
