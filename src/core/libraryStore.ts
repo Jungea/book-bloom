@@ -14,8 +14,11 @@ export interface LibraryStore {
   reset(): void
 }
 
-export function createLibraryStore(shelfCapacity: number): LibraryStore {
-  let state = createLibrary(shelfCapacity)
+export function createLibraryStore(shelfCapacity: number, initial?: LibraryState): LibraryStore {
+  if (initial && initial.shelfCapacity !== shelfCapacity) {
+    throw new RangeError('초기 상태의 책장 용량이 저장소 용량과 다릅니다.')
+  }
+  let state = initial ?? createLibrary(shelfCapacity)
   const listeners = new Set<() => void>()
 
   const update = (next: LibraryState) => {

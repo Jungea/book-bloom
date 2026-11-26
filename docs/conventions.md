@@ -31,6 +31,7 @@
 - 실제 게임 로직을 호출한다.
 - 테스트 데이터는 실제 데이터와 분리한다.
 - 일반 출시 빌드에서는 비활성화한다. 패널은 개발 서버와 `--mode debug` 빌드(`npm run build:debug`, `npm run android:sync:debug`)에서만 켜지고, 일반 빌드는 코드가 번들에서 빠진다.
+- 저장소 이름도 분리한다. 디버그 빌드는 `bookbloom-debug`, 일반 빌드는 `bookbloom`을 쓴다 (`src/App.tsx`).
 - v0.1: 임시 도서 등록, 1권·10권 획득, 책장 채우기, 저장·복원·초기화 (`08-roadmap.md`).
 
 ## 5. 테스트와 검증

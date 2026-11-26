@@ -87,3 +87,19 @@ body,
 .debug-panel button:active {
   background: #52667a;
 }
+
+.storage-notice {
+  position: fixed;
+  top: 40px;
+  left: 50%;
+  z-index: 10;
+  max-width: calc(100vw - 32px);
+  margin: 0;
+  padding: 8px 12px;
+  transform: translateX(-50%);
+  border-radius: 6px;
+  background: rgba(120, 40, 32, 0.92);
+  color: #fbeee8;
+  font-size: 13px;
+  text-align: center;
+}

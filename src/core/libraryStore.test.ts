@@ -48,3 +48,19 @@ describe('createLibraryStore', () => {
     expect(listener).not.toHaveBeenCalled()
   })
 })
+
+describe('초기 상태가 있는 저장소', () => {
+  it('주어진 상태로 시작하고 초기화하면 빈 도서관이 된다', () => {
+    const first = createLibraryStore(2)
+    first.acquire(book(1))
+    const store = createLibraryStore(2, first.getState())
+    expect(store.getState().shelf[0]?.id).toBe('b1')
+    store.reset()
+    expect(store.getState().shelf).toEqual([null, null])
+  })
+
+  it('용량이 다른 초기 상태는 거부한다', () => {
+    const other = createLibraryStore(3).getState()
+    expect(() => createLibraryStore(2, other)).toThrow(RangeError)
+  })
+})
