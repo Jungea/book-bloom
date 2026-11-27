@@ -26,7 +26,7 @@ import { storageLabel } from './statusLabels'
 import { trayDisplay } from './trayDisplay'
 import { ringArc } from './progressRing'
 import { carriedBookPlacement } from './carriedBook'
-import { UI_FONT_FAMILY } from '../uiFont'
+import { UI_FONT_FAMILY, UI_FONT_WEIGHT } from '../uiFont'
 import {
   CARRIED_BOOK_MAX_THICKNESS,
   TEMP_SORT_FLIGHT_MS,
@@ -153,6 +153,7 @@ export class LibraryScene extends Phaser.Scene {
     this.trayText = this.add
       .text(offset + SLOT_CENTERS[3], FLOOR_Y - TRAY_LABEL_LIFT, '', {
         fontFamily: UI_FONT_FAMILY,
+        fontStyle: UI_FONT_WEIGHT,
         fontSize: '11px',
         color: '#3a2a1a',
       })
@@ -170,6 +171,7 @@ export class LibraryScene extends Phaser.Scene {
     this.storageText = this.add
       .text(offset + STORAGE_LABEL_RIGHT, STATUS_HEIGHT / 2, '', {
         fontFamily: UI_FONT_FAMILY,
+        fontStyle: UI_FONT_WEIGHT,
         fontSize: '11px',
         color: '#e9d5b9',
       })
