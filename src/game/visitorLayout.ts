@@ -56,3 +56,11 @@ export function walkSway(timeMs: number, spot: number): { lift: number; angle: n
 export const TEMP_SORT_MS = 3000
 /** 정리된 책이 트레이에서 책장 원래 자리로 날아가는 시간. 시각 효과일 뿐 상태는 정리 시점에 바뀐다. */
 export const TEMP_SORT_FLIGHT_MS = 500
+
+// V4 visitor_idle.png(64×96, 0.5배로 그림)에서 측정한 머리 위치(논리 좌표). 머리 윗면은 불투명 픽셀이 y=8에서 시작하므로
+// 발(이미지 아래 끝)에서 (96 - 8) / 2 = 44 위이고, 머리 가운데는 불투명 x 범위 18..49의 중심 33.5라 이미지 가운데(32)보다
+// (33.5 - 32) / 2 = 0.75 오른쪽이다. 손님이 머리 위에 얹은 책의 위치를 이 값에 맞춘다.
+export const VISITOR_HEAD_TOP = 44
+export const VISITOR_HEAD_CENTER_X = 0.75
+/** 눕힌 책(책등 이미지 0.5배)의 가장 두꺼운 두께. 진행률 링을 책 위에 두는 높이 계산에 쓴다. */
+export const CARRIED_BOOK_MAX_THICKNESS = 10

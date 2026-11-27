@@ -25,7 +25,14 @@ import { BASE_WIDTH, FLOOR_Y, HEIGHT, SLOT_CENTERS, STATUS_HEIGHT } from './scen
 import { storageLabel } from './statusLabels'
 import { trayDisplay } from './trayDisplay'
 import { ringArc } from './progressRing'
-import { TEMP_SORT_FLIGHT_MS, VISITOR_CONFIG, VISITOR_HEIGHT, walkSway } from './visitorLayout'
+import { carriedBookPlacement } from './carriedBook'
+import {
+  CARRIED_BOOK_MAX_THICKNESS,
+  TEMP_SORT_FLIGHT_MS,
+  VISITOR_CONFIG,
+  VISITOR_HEAD_TOP,
+  walkSway,
+} from './visitorLayout'
 
 export const GAME_STORE_KEY = 'gameStore'
 export const VISITOR_WORLD_KEY = 'visitorWorld'
@@ -41,7 +48,8 @@ const TRAY_LABEL_LIFT = 70
 // 원형 진행률 링: 크기와 위치는 임시 값이다(최종 UI 미정). 트레이 링은 `반납 N권` 문구 왼쪽에 둔다.
 const RING_RADIUS = 7
 const TRAY_RING_OFFSET = { x: -40, y: -76 }
-const DESK_RING_OFFSET = { x: 14, y: -VISITOR_HEIGHT - 8 }
+// 데스크 링은 머리 위에 눕혀 얹은 책 바로 위, 손님 가운데에 둔다(책과 겹치지 않게 책의 최대 두께만큼 띄운다).
+const DESK_RING_OFFSET = { x: 0, y: -(VISITOR_HEAD_TOP + CARRIED_BOOK_MAX_THICKNESS + RING_RADIUS + 3) }
 
 /** 손님 id(`visitor-12`)의 번호. 흔들림의 위상을 손님마다 다르게 하는 데 쓴다. */
 function visitorNumber(id: string): number {
@@ -275,14 +283,16 @@ export class LibraryScene extends Phaser.Scene {
       const feetY = visitor.position.y - sway.lift
       image.setPosition(x, feetY).setAngle(sway.angle).setDepth(visitor.position.y)
 
-      // 고른 도서는 퇴장할 때까지 머리 위에 보인다(대출 이후 표시 유지는 임시 결정).
+      // 고른 도서는 퇴장할 때까지 머리 위에 가로로 눕혀 얹힌 모습으로 보인다(대출 이후 표시 유지는 임시 결정).
+      // 예약 후 이동·대기·대출 완료 후 퇴장 모두 같은 방향이며, 손님이 흔들리면 책도 같은 각도로 함께 기운다.
       let carried = this.carriedBookImages.get(visitor.id)
       if (visitor.book && !carried) {
-        carried = this.add.image(0, 0, `spine${spineVariant(visitor.book.bookId)}`).setOrigin(0.5, 1).setScale(0.5)
+        carried = this.add.image(0, 0, `spine${spineVariant(visitor.book.bookId)}`).setOrigin(0.5, 0.5).setScale(0.5)
         this.carriedBookImages.set(visitor.id, carried)
       }
       if (carried) {
-        carried.setPosition(x, feetY - VISITOR_HEIGHT - 2).setDepth(visitor.position.y + 1)
+        const placement = carriedBookPlacement({ x, y: feetY }, sway.angle, carried.displayWidth)
+        carried.setPosition(placement.x, placement.y).setAngle(placement.angle).setDepth(visitor.position.y + 1)
       }
     }
     const drop = <T extends Phaser.GameObjects.Image>(images: Map<string, T>, keep: (id: string) => boolean) => {
