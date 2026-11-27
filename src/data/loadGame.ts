@@ -14,6 +14,11 @@ export type LoadedGame =
       readonly game: Game
       /** 사용자에게 알릴 문제. 없으면 null. */
       readonly notice: string | null
+      /**
+       * 복원 직후의 복구(예약 해제, 만기 지난 대출의 반납 트레이 이동 등)로 상태가 저장된 값과 달라졌는지.
+       * true면 첫 변경을 기다리지 않고 한 번 저장해 저장소를 현재 상태에 맞춘다.
+       */
+      readonly recovered: boolean
     }
   | {
       readonly ok: false
@@ -42,13 +47,14 @@ export async function loadGame(
     console.error('저장된 데이터를 불러오지 못했습니다.', error)
     return { ok: false, message: `저장된 데이터를 불러오지 못했습니다. ${PROTECT_AND_RESTART}` }
   }
-  if (raw === null) return { ok: true, game: empty, notice: null }
+  if (raw === null) return { ok: true, game: empty, notice: null, recovered: false }
 
   const result = restoreGame(raw, shelfCapacity)
   if (result.ok) {
     // 재실행 사이에 지난 시간을 반영한다: 예약 해제, 반납 예정 시각이 지난 대출을 트레이로.
     const library = resumeCirculation(result.game.library, nowMs)
-    return { ok: true, game: { ...result.game, library }, notice: null }
+    const recovered = library !== result.game.library // 바뀐 것이 없으면 같은 객체를 돌려준다
+    return { ok: true, game: { ...result.game, library }, notice: null, recovered }
   }
 
   console.error('저장 데이터를 복원하지 못했습니다.', result.reason, raw)
@@ -64,6 +70,7 @@ export async function loadGame(
   return {
     ok: true,
     game: empty,
+    recovered: false,
     notice: `저장 데이터가 올바르지 않아(${result.reason}) 빈 상태로 시작합니다. 원본은 따로 보관했습니다.`,
   }
 }

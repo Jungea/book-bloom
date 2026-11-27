@@ -4,6 +4,8 @@ import type { Game } from '../reading/reading'
 import type { GameStorage } from './gameStorage'
 
 export interface Persistence {
+  /** 현재 상태를 지금 저장한다. 변경이 없어도 쓰며, 기존 순차 저장 경로를 거친다(동시에 둘 이상 쓰지 않는다). */
+  saveNow(): Promise<void>
   /** 대기 중인 저장이 모두 끝날 때까지 기다린다. */
   flush(): Promise<void>
   detach(): void
@@ -41,14 +43,20 @@ export function attachPersistence(
     }
   }
 
-  const unsubscribe = store.subscribe(() => {
+  const schedule = () => {
     latest = store.getState()
     if (writing) return
     writing = true
     current = drain()
-  })
+  }
+
+  const unsubscribe = store.subscribe(schedule)
 
   return {
+    saveNow: () => {
+      schedule()
+      return current
+    },
     flush: () => current,
     detach: unsubscribe,
   }

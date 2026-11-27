@@ -10,7 +10,7 @@ import { GAME_STORE_KEY, LibraryScene, VISITOR_WORLD_KEY } from './game/LibraryS
 import { logicalWidthFor } from './game/sceneLayout'
 import { TEMP_SHELF_CAPACITY } from './game/shelfLayout'
 import { TEMP_LOAN_DURATION_MS, VISITOR_CONFIG } from './game/visitorLayout'
-import { createCirculationHooks } from './reading/gameCirculation'
+import { createCirculationHooks, settleDueGame, TEMP_SETTLE_INTERVAL_MS } from './reading/gameCirculation'
 import ReadingScreen from './reading/ReadingScreen'
 import { lockOrientation } from './orientation'
 
@@ -22,7 +22,7 @@ const DebugPanel = DEBUG_BUILD ? lazy(() => import('./debug/DebugPanel')) : null
 const DATABASE_NAME = DEBUG_BUILD ? 'bookbloom-debug' : 'bookbloom'
 
 type Boot =
-  | { ok: true; store: GameStore; storage: GameStorage; loadNotice: string | null }
+  | { ok: true; store: GameStore; storage: GameStorage; loadNotice: string | null; recovered: boolean }
   | { ok: false; message: string }
 
 export function App() {
@@ -44,6 +44,7 @@ export function App() {
         store: createGameStore(TEMP_SHELF_CAPACITY, loaded.game),
         storage,
         loadNotice: loaded.notice,
+        recovered: loaded.recovered,
       })
     })
     return () => {
@@ -61,7 +62,14 @@ export function App() {
       </main>
     )
   }
-  return <Shell store={boot.store} storage={boot.storage} loadNotice={boot.loadNotice} />
+  return (
+    <Shell
+      store={boot.store}
+      storage={boot.storage}
+      loadNotice={boot.loadNotice}
+      recovered={boot.recovered}
+    />
+  )
 }
 
 type View = 'library' | 'reading'
@@ -70,13 +78,15 @@ interface ShellProps {
   store: GameStore
   storage: GameStorage
   loadNotice: string | null
+  /** 복원 직후 복구로 상태가 저장된 값과 달라졌다. 첫 변경을 기다리지 않고 한 번 저장한다. */
+  recovered: boolean
 }
 
 /**
  * 도서관(가로형)과 독서관리(세로형)를 오가는 최상위 화면.
  * 저장 연결은 여기에 두어 화면을 바꿔도 끊기지 않고, 상태는 저장소가 들고 있어 전환으로 초기화되지 않는다.
  */
-function Shell({ store, storage, loadNotice }: ShellProps) {
+function Shell({ store, storage, loadNotice, recovered }: ShellProps) {
   const [view, setView] = useState<View>('library')
   // 손님은 메모리에만 있고(v0.2) 화면을 오가도 유지된다. 시간은 도서관 화면에서만 흐른다(임시 동작).
   const [visitors] = useState<VisitorWorld>(() =>
@@ -101,8 +111,32 @@ function Shell({ store, storage, loadNotice }: ShellProps) {
       },
       () => setSaveNotice(null),
     )
+    // 복구(예약 해제, 만기 반영)한 상태를 저장소에 맞춘다. 기존 순차 저장 경로를 거친다.
+    if (recovered) void persistence.saveNow()
     return persistence.detach
-  }, [store, storage])
+  }, [store, storage, recovered])
+
+  // 반납 예정 시각이 지난 대출을 반납 트레이로 옮긴다. 만기는 절대 시각이라 어느 화면에서든 흐르고,
+  // 앱을 열 때(loadGame), 독서 관리에서 도서관으로 돌아올 때, 탭이 다시 보일 때, 주기적으로 반영한다.
+  // 옮길 것이 없으면 상태가 그대로라 저장도 일어나지 않는다.
+  useEffect(() => {
+    const settle = () => {
+      store.apply((game) => settleDueGame(game, Date.now()))
+    }
+    const timer = window.setInterval(settle, TEMP_SETTLE_INTERVAL_MS)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') settle()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      window.clearInterval(timer)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [store])
+
+  useEffect(() => {
+    if (view === 'library') store.apply((game) => settleDueGame(game, Date.now()))
+  }, [view, store])
 
   // Android 앱에서는 화면에 맞게 방향을 바꾼다(도서관 가로, 독서 관리 세로). 웹에서는 아무 동작이 없다.
   useEffect(() => {

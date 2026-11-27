@@ -2,10 +2,25 @@ import {
   availableBookIds,
   cancelReservation,
   reserveBook,
+  settleDueLoans,
   startLoan,
 } from '../core/circulation'
 import type { HookResult, ReserveResult, VisitorHooks } from '../core/visitorWorld'
 import type { GameStore } from './gameStore'
+import type { Game, Outcome } from './reading'
+
+// 임시 상수: 만기 반영 주기는 기획에서 미정이다. 대출 만기는 절대 시각이라 늦게 반영해도 결과는 같고,
+// 반납 트레이에 쌓이는 모습이 곧바로 보이도록 1초로 잡았다.
+export const TEMP_SETTLE_INTERVAL_MS = 1000
+
+/**
+ * 반납 예정 시각이 지난 대출을 반납 트레이로 옮긴다. 옮길 것이 없으면 같은 게임 객체를 돌려주어
+ * 저장소가 변경을 알리지 않고 저장도 일어나지 않는다. 같은 시각으로 여러 번 불러도 결과가 같다.
+ */
+export function settleDueGame(game: Game, nowMs: number): Outcome {
+  const library = settleDueLoans(game.library, nowMs)
+  return { ok: true, game: library === game.library ? game : { ...game, library } }
+}
 
 export interface CirculationOptions {
   /** 현재 시각(epoch 밀리초). */

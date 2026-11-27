@@ -4,6 +4,7 @@ import { shelvedCount } from '../core/library'
 import type { VisitorWorld } from '../core/visitorWorld'
 import type { GameStore } from '../reading/gameStore'
 import { registerBook, startReading, type Game, type Outcome } from '../reading/reading'
+import { expireLoans } from './circulationActions'
 import { readingActions, readingStatusLabel, testBookInput } from './readingActions'
 import { createTestBooks, nextTestSerial } from './testBooks'
 
@@ -80,6 +81,9 @@ export default function DebugPanel({ store, visitors }: DebugPanelProps) {
           대출 즉시 완료
         </button>
         <button type="button" onClick={() => visitors.clear()}>손님 모두 제거</button>
+        <button type="button" onClick={() => store.apply((current) => expireLoans(current, Date.now()))}>
+          만기 앞당기기
+        </button>
       </div>
 
       <p className="debug-panel__status">독서 기록 · 등록 도서 {reading.books.length}</p>

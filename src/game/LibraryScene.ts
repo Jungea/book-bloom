@@ -7,13 +7,14 @@ import deskUrl from '../../assets/source/v4/circulation/circulation_desk.png'
 import monitorUrl from '../../assets/source/v4/circulation/desk_monitor.png'
 import bookshelfUrl from '../../assets/source/v4/bookshelves/bookshelf_empty.png'
 import returnTrayUrl from '../../assets/source/v4/circulation/return_tray_empty.png'
+import returnedBooksUrl from '../../assets/source/v4/circulation/returned_books.png'
 import spineBlueUrl from '../../assets/source/v4/books/book_spine_blue.png'
 import spineCreamUrl from '../../assets/source/v4/books/book_spine_cream.png'
 import spineGrayUrl from '../../assets/source/v4/books/book_spine_gray.png'
 import spineRedUrl from '../../assets/source/v4/books/book_spine_red.png'
 import spineTaupeUrl from '../../assets/source/v4/books/book_spine_taupe.png'
 import visitorUrl from '../../assets/source/v4/characters/visitor_idle.png'
-import { bookStatus } from '../core/circulation'
+import { bookStatus, returnedCount } from '../core/circulation'
 import { storedCount, type LibraryState } from '../core/library'
 import { isWalking } from '../core/visitors'
 import type { VisitorWorld } from '../core/visitorWorld'
@@ -21,6 +22,7 @@ import type { GameStore } from '../reading/gameStore'
 import { SHELF_HEIGHT, SHELF_WIDTH, slotPosition, spineVariant } from './shelfLayout'
 import { BASE_WIDTH, FLOOR_Y, HEIGHT, SLOT_CENTERS, STATUS_HEIGHT } from './sceneLayout'
 import { storageLabel } from './statusLabels'
+import { trayDisplay } from './trayDisplay'
 import { VISITOR_HEIGHT, walkSway } from './visitorLayout'
 
 export const GAME_STORE_KEY = 'gameStore'
@@ -30,6 +32,9 @@ const SPINE_URLS = [spineBlueUrl, spineCreamUrl, spineGrayUrl, spineRedUrl, spin
 
 // 상태바 이미지 오른쪽에 있는 자리 표시 칸(논리 x 452~630)과 겹치지 않게 그 왼쪽 끝에 맞춘다.
 const STORAGE_LABEL_RIGHT = 440
+// 반납 트레이(논리 높이 64) 위에 쌓인 책을 얹는 높이와 권수 문구의 높이. 화면을 보며 맞춘 임시 값이다.
+const TRAY_BOOKS_LIFT = 44
+const TRAY_LABEL_LIFT = 70
 
 /** 손님 id(`visitor-12`)의 번호. 흔들림의 위상을 손님마다 다르게 하는 데 쓴다. */
 function visitorNumber(id: string): number {
@@ -40,6 +45,8 @@ export class LibraryScene extends Phaser.Scene {
   private shelfOrigin = { x: 0, y: 0 }
   private bookImages: Phaser.GameObjects.Image[] = []
   private storageText: Phaser.GameObjects.Text | null = null
+  private trayBooks: Phaser.GameObjects.Image | null = null
+  private trayText: Phaser.GameObjects.Text | null = null
   private visitorWorld: VisitorWorld | null = null
   private visitorImages = new Map<string, Phaser.GameObjects.Image>()
   private carriedBookImages = new Map<string, Phaser.GameObjects.Image>()
@@ -57,6 +64,7 @@ export class LibraryScene extends Phaser.Scene {
     this.load.image('monitor', monitorUrl)
     this.load.image('bookshelf', bookshelfUrl)
     this.load.image('returnTray', returnTrayUrl)
+    this.load.image('returnedBooks', returnedBooksUrl)
     this.load.image('visitor', visitorUrl)
     SPINE_URLS.forEach((url, i) => this.load.image(`spine${i}`, url))
   }
@@ -87,6 +95,20 @@ export class LibraryScene extends Phaser.Scene {
     this.add.image(offset + SLOT_CENTERS[0], FLOOR_Y - 73, 'monitor').setOrigin(0.5, 1).setScale(0.5)
     this.add.image(offset + SLOT_CENTERS[1], FLOOR_Y, 'bookshelf').setOrigin(0.5, 1).setScale(0.5)
     this.add.image(offset + SLOT_CENTERS[3], FLOOR_Y, 'returnTray').setOrigin(0.5, 1).setScale(0.5)
+    // 정리 전 반납 도서가 있으면 트레이 위에 쌓인 책과 권수를 얹는다(임시 표시, 위치는 화면을 보며 맞춘다).
+    this.trayBooks = this.add
+      .image(offset + SLOT_CENTERS[3], FLOOR_Y - TRAY_BOOKS_LIFT, 'returnedBooks')
+      .setOrigin(0.5, 1)
+      .setScale(0.5)
+      .setVisible(false)
+    this.trayText = this.add
+      .text(offset + SLOT_CENTERS[3], FLOOR_Y - TRAY_LABEL_LIFT, '', {
+        fontFamily: 'sans-serif',
+        fontSize: '11px',
+        color: '#3a2a1a',
+      })
+      .setOrigin(0.5, 1)
+      .setResolution(2)
 
     this.add.rectangle(0, 0, width, STATUS_HEIGHT, 0x344b60).setOrigin(0, 0)
     this.add.image(width / 2, 0, 'statusBar').setOrigin(0.5, 0).setScale(0.5)
@@ -184,6 +206,9 @@ export class LibraryScene extends Phaser.Scene {
 
   private renderBooks(state: LibraryState) {
     this.storageText?.setText(storageLabel(storedCount(state)))
+    const tray = trayDisplay(returnedCount(state))
+    this.trayBooks?.setVisible(tray.showBooks)
+    this.trayText?.setText(tray.label ?? '')
     this.bookImages.forEach((image) => image.destroy())
     this.bookImages = []
     state.shelf.forEach((book, slot) => {
