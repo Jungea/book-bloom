@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { storageLabel } from './statusLabels'
+import { storageCountText } from './statusLabels'
 
-describe('storageLabel', () => {
-  it('보관함 도서 수를 문구로 만든다', () => {
-    expect(storageLabel(0)).toBe('보관함 0권')
-    expect(storageLabel(10)).toBe('보관함 10권')
+describe('storageCountText', () => {
+  it('보관함 도서 수를 숫자만으로 만든다(아이콘 옆에 표시)', () => {
+    expect(storageCountText(0)).toBe('0')
+    expect(storageCountText(10)).toBe('10')
+    expect(storageCountText(123)).toBe('123')
   })
 })

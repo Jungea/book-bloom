@@ -22,7 +22,8 @@ import type { VisitorWorld } from '../core/visitorWorld'
 import type { GameStore } from '../reading/gameStore'
 import { SHELF_HEIGHT, SHELF_WIDTH, slotPosition, spineVariant } from './shelfLayout'
 import { BASE_WIDTH, FLOOR_Y, HEIGHT, SLOT_CENTERS, STATUS_HEIGHT, spriteFilterFor } from './sceneLayout'
-import { storageLabel } from './statusLabels'
+import { storageCountText } from './statusLabels'
+import { ARCHIVE_ICON_GRID, drawArchiveIcon } from './archiveIcon'
 import { trayDisplay } from './trayDisplay'
 import { ringArc } from './progressRing'
 import { carriedBookPlacement } from './carriedBook'
@@ -41,8 +42,12 @@ export const SORTER_KEY = 'returnSorter'
 
 const SPINE_URLS = [spineBlueUrl, spineCreamUrl, spineGrayUrl, spineRedUrl, spineTaupeUrl]
 
-// 상태바 이미지 오른쪽에 있는 자리 표시 칸(논리 x 452~630)과 겹치지 않게 그 왼쪽 끝에 맞춘다.
-const STORAGE_LABEL_RIGHT = 440
+// 보관함 아이콘(16px)과 그 오른쪽 숫자. 상태바 이미지 오른쪽의 자리 표시 칸(논리 x 452~630)과 겹치지 않도록,
+// 숫자가 세 자리여도 그 칸을 넘지 않는 위치에 둔다.
+const STORAGE_ICON_X = 404
+const STORAGE_ICON_SIZE = 16
+const STORAGE_ICON_GAP = 4
+const STORAGE_COLOR = 0xe9d5b9
 // 반납 트레이(논리 높이 64) 위에 쌓인 책을 얹는 높이와 권수 문구의 높이. 화면을 보며 맞춘 임시 값이다.
 const TRAY_BOOKS_LIFT = 44
 const TRAY_LABEL_LIFT = 70
@@ -168,14 +173,20 @@ export class LibraryScene extends Phaser.Scene {
       y: FLOOR_Y - SHELF_HEIGHT,
     }
     this.bookImages = []
+    // 보관함은 글자 대신 아이콘과 숫자로 표시한다(왼쪽 위 기준으로 놓고 숫자는 아이콘 오른쪽에서 시작한다).
+    const storageIcon = this.add
+      .graphics()
+      .setPosition(offset + STORAGE_ICON_X, (STATUS_HEIGHT - STORAGE_ICON_SIZE) / 2)
+      .setScale(STORAGE_ICON_SIZE / ARCHIVE_ICON_GRID)
+    drawArchiveIcon(storageIcon, STORAGE_COLOR)
     this.storageText = this.add
-      .text(offset + STORAGE_LABEL_RIGHT, STATUS_HEIGHT / 2, '', {
+      .text(offset + STORAGE_ICON_X + STORAGE_ICON_SIZE + STORAGE_ICON_GAP, STATUS_HEIGHT / 2, '', {
         fontFamily: UI_FONT_FAMILY,
         fontStyle: UI_FONT_WEIGHT,
         fontSize: '11px',
         color: '#e9d5b9',
       })
-      .setOrigin(1, 0.5)
+      .setOrigin(0, 0.5)
       .setResolution(this.renderZoom)
     const store = this.registry.get(GAME_STORE_KEY) as GameStore | undefined
     // 씬이 재시작(shutdown)되거나 게임째 파괴(destroy)될 때 모두 구독을 해제한다.
@@ -324,7 +335,7 @@ export class LibraryScene extends Phaser.Scene {
   }
 
   private renderBooks(state: LibraryState) {
-    this.storageText?.setText(storageLabel(storedCount(state)))
+    this.storageText?.setText(storageCountText(storedCount(state)))
     const tray = trayDisplay(returnedCount(state))
     this.trayBooks?.setVisible(tray.showBooks)
     this.trayText?.setText(tray.label ?? '')
