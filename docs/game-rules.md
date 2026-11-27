@@ -91,3 +91,24 @@ v0.1에서 사용하는 상태는 `AVAILABLE`과 `STORED`뿐이다. 나머지는
 - 기존 도서 위치 불변.
 - 완독 취소·이력 삭제·도서 삭제 시 회수.
 - 과거 기록 입력 시 수량 (읽는 중 1, 최초 완독 2, 재독 회차당 1).
+
+## 9. 개발 중 임시 값 (v0.2~v0.3, 확정 규칙 아님)
+
+기획이 정하지 않아 동작 확인용으로 둔 값이다. 모두 코드의 한 곳(아래 위치)에서 바꿀 수 있고, 일반 빌드에도 적용된다. 확정되면 이 표와 근거 문서를 함께 갱신한다.
+
+| 값 | 현재 | 위치 | 비고 |
+| --- | --- | --- | --- |
+| 책장 용량 | 44권 | `TEMP_SHELF_CAPACITY` (`src/game/shelfLayout.ts`) | 선반에 물리적으로 들어가는 개수 |
+| 손님 이동 속도 | 초당 60px | `TEMP_VISITOR_SPEED` (`src/game/visitorLayout.ts`) | |
+| 책장 앞 구경 시간 | 4초 | `TEMP_VISITOR_BROWSE_MS` | |
+| 대출 처리 시간 | 3초 | `TEMP_VISITOR_CHECKOUT_MS` | 데스크 클릭으로 즉시 완료 |
+| 첫 손님·방문 주기 | 1.5초 · 10초 | `TEMP_VISITOR_FIRST_SPAWN_MS`, `TEMP_VISITOR_SPAWN_INTERVAL_MS` | |
+| 동시 방문 인원 | 최대 3명 | `TEMP_VISITOR_MAX` | 책장 앞 지점·데스크 자리도 3곳 |
+| 대출 기간 | 60초 | `TEMP_LOAN_DURATION_MS` | 반납 트레이 누적 확인용으로 짧게 잡음 |
+| 권당 정리 시간 | 3초 | `TEMP_SORT_MS` | 트레이 클릭으로 시작 |
+| 정리된 책의 이동 효과 | 0.5초 | `TEMP_SORT_FLIGHT_MS` | 시각 효과뿐, 상태는 정리 시점에 바뀜 |
+| 만기 반영 주기 | 1초 | `TEMP_SETTLE_INTERVAL_MS` (`src/reading/gameCirculation.ts`) | 앱 시작·도서관 복귀·탭 복귀 때도 반영 |
+| 도서 선택 | 대출 가능 도서 중 균등 무작위 1권 | `createCirculationHooks` | 장르 선호는 v0.6 |
+| 트레이·링·클릭 영역 | 이미지 전체, 링 반지름 7px 등 | `src/game/LibraryScene.ts` | 최종 UI 미정 |
+
+임시 동작(최종 운영 규칙이 아니다): 손님 이동과 트레이 정리 진행은 도서관 화면의 장면 시간으로만 흐르고 독서 관리 중에는 멈춘다. 대출 만기는 절대 시각이라 독서 관리 중에도 흐른다. 손님과 정리 진행률은 저장하지 않는다. 대출 이력(정리를 마친 기록)의 보관 상한은 정하지 않았다.

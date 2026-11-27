@@ -63,4 +63,13 @@
 
 ## 9. 현재 코드와의 차이 (사실 기록)
 
-`src/game/LibraryScene.ts`는 에셋 경로와 좌표 상수가 씬 파일 안에 있고, 데스크 모니터 위치가 `FLOOR_Y - 73`으로 고정되어 있다. 게임 코어와 IndexedDB 저장 계층은 구현됐으며, 좌표 상수의 분리는 이후 관련 작업에서 검토한다.
+`src/game/LibraryScene.ts`는 에셋 경로와 좌표 상수가 씬 파일 안에 있고, 데스크 모니터 위치가 `FLOOR_Y - 73`으로 고정되어 있다. 게임 코어와 IndexedDB 저장 계층은 구현됐으며, 좌표 상수의 분리는 이후 관련 작업에서 검토한다(장면 기준 좌표와 손님 경로는 `sceneLayout.ts`·`visitorLayout.ts`로 일부 분리했다).
+
+현재 코드의 역할 분담(2026-11-27, v0.3 개발 중):
+
+- `src/core/` 순수 TypeScript 코어(Phaser·React 무관): `library`(책장·보관함·대출 기록 타입), `circulation`(예약·대출·만기·반납 대기·정리·회수), `visitors`·`visitorWorld`(손님 상태 머신과 메모리 월드, 도서관과는 훅으로만 연결), `returnSorter`(트레이 정리).
+- `src/reading/` 독서 기록과 도서관을 함께 다루는 게임 상태(`gameStore`), 저장 형식(`gameSnapshot` v3, v1·v2 복원), 코어를 저장소에 잇는 훅(`gameCirculation`).
+- `src/data/` 저장소 계층: IndexedDB 저장, 복원·복구(`loadGame`), 순차 저장(`persistGame`).
+- `src/game/` Phaser 장면과 순수 보조 함수(좌표, 임시 상수, 표시 규칙, 진행률 링).
+- `src/debug/` 개발자 테스트 패널(디버그 빌드에서만).
+- 대출·정리의 규칙을 바꿀 때는 `core`에서 바꾸고 테스트를 함께 고친다. 장면은 코어 상태를 그리고 클릭을 코어로 전달할 뿐 규칙을 두지 않는다.
