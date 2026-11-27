@@ -22,6 +22,10 @@ function storageWith(options: {
   const quarantined: unknown[] = []
   const save = vi.fn(async () => {})
   const clear = vi.fn(async () => {})
+  const quarantine = vi.fn(async (raw: unknown) => {
+    if (options.quarantineError) throw options.quarantineError
+    quarantined.push(raw)
+  })
   const storage: GameStorage = {
     load: async () => {
       if (options.loadError) throw options.loadError
@@ -29,12 +33,9 @@ function storageWith(options: {
     },
     save,
     clear,
-    quarantine: async (raw) => {
-      if (options.quarantineError) throw options.quarantineError
-      quarantined.push(raw)
-    },
+    quarantine,
   }
-  return { storage, quarantined, save, clear }
+  return { storage, quarantined, save, clear, quarantine }
 }
 
 describe('loadGame', () => {
@@ -76,7 +77,7 @@ describe('loadGame', () => {
   })
 
   it('불러오기가 실패하면 게임을 시작하지 않고 보호 안내를 돌려준다', async () => {
-    const { storage, save, clear, quarantined } = storageWith({ loadError: new Error('열 수 없음') })
+    const { storage, save, clear, quarantine } = storageWith({ loadError: new Error('열 수 없음') })
     const result = await loadGame(storage, 3)
     expect(result.ok).toBe(false)
     if (result.ok) return
@@ -87,7 +88,7 @@ describe('loadGame', () => {
     // 기존 데이터를 건드리는 호출이 없다.
     expect(save).not.toHaveBeenCalled()
     expect(clear).not.toHaveBeenCalled()
-    expect(quarantined).toEqual([])
+    expect(quarantine).not.toHaveBeenCalled() // 불러오기 실패에서는 보관을 시도하지 않는다.
   })
 
   it('깨진 데이터는 빈 도서관으로 시작하되 원본을 따로 보관한다', async () => {
@@ -100,13 +101,14 @@ describe('loadGame', () => {
   })
 
   it('원본 보관에도 실패하면 게임을 시작하지 않고 보호 안내를 돌려준다', async () => {
-    const { storage, save, clear } = storageWith({ stored: { version: 99 }, quarantineError: new Error('가득 참') })
+    const { storage, save, clear, quarantine } = storageWith({ stored: { version: 99 }, quarantineError: new Error('가득 참') })
     const result = await loadGame(storage, 3)
     expect(result.ok).toBe(false)
     if (result.ok) return
     expect(result).not.toHaveProperty('game')
     expect(result.message).toContain('원본도 보관하지 못했습니다')
     expect(result.message).toContain('기존 데이터 보호를 위해 변경을 중단했습니다. 앱을 다시 시작해 주세요.')
+    expect(quarantine).toHaveBeenCalledTimes(1) // 보관을 시도했지만 실패했다.
     expect(save).not.toHaveBeenCalled()
     expect(clear).not.toHaveBeenCalled()
   })
