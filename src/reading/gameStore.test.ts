@@ -41,6 +41,26 @@ describe('createGameStore', () => {
     expect(listener).not.toHaveBeenCalled()
   })
 
+  it('구독자 하나가 예외를 던져도 나머지 구독자에게 알린다', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const store = createGameStore(2)
+    const before = vi.fn()
+    const after = vi.fn()
+    store.subscribe(before)
+    store.subscribe(() => {
+      throw new Error('죽은 화면')
+    })
+    store.subscribe(after)
+
+    store.acquire(book(1))
+
+    expect(before).toHaveBeenCalledTimes(1)
+    expect(after).toHaveBeenCalledTimes(1)
+    expect(store.getState().library.shelf[0]?.id).toBe('b1')
+    expect(error).toHaveBeenCalledTimes(1)
+    error.mockRestore()
+  })
+
   it('테스트 도서를 직접 넣어도 독서 기록은 바뀌지 않는다', () => {
     const store = createGameStore(2)
     const before = store.getState().reading

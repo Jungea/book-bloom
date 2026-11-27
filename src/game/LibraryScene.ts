@@ -82,14 +82,21 @@ export class LibraryScene extends Phaser.Scene {
     }
     this.bookImages = []
     const store = this.registry.get(GAME_STORE_KEY) as GameStore | undefined
+    // 씬이 재시작(shutdown)되거나 게임째 파괴(destroy)될 때 모두 구독을 해제한다.
+    // 해제하지 않으면 다른 화면에서 상태가 바뀔 때 죽은 씬이 그려 보려다 예외를 던진다.
+    const cleanups: (() => void)[] = []
     if (store) {
       this.renderBooks(store.getState().library)
-      const unsubscribe = store.subscribe(() => this.renderBooks(store.getState().library))
-      this.events.once('shutdown', unsubscribe)
+      cleanups.push(store.subscribe(() => this.renderBooks(store.getState().library)))
     }
 
     this.scale.on('resize', this.handleResize, this)
-    this.events.once('shutdown', () => this.scale.off('resize', this.handleResize, this))
+    const scale = this.scale
+    cleanups.push(() => scale.off('resize', this.handleResize, this))
+
+    const release = () => cleanups.splice(0).forEach((cleanup) => cleanup())
+    this.events.once('shutdown', release)
+    this.events.once('destroy', release)
   }
 
   private renderBooks(state: LibraryState) {

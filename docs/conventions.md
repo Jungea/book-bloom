@@ -16,7 +16,7 @@
 
 `src/app`, `src/game`, `src/core`, `src/reading`, `src/data`, `src/shared`, `src/debug`, `public/assets`, `tests`, `docs`, `android`.
 
-실제 구조는 분석 후 사용자 승인을 받아 정한다 (`00-ai-guide.md` 5절). 승인 전에는 이 목록을 따라 폴더를 만들지 않는다. 승인받아 만든 폴더: `src/core`, `src/debug`, `src/data`, `src/reading`.
+실제 구조는 분석 후 사용자 승인을 받아 정한다 (`00-ai-guide.md` 5절). 승인 전에는 이 목록을 따라 폴더를 만들지 않는다. 승인받아 만든 폴더: `src/core`, `src/debug`, `src/data`, `src/reading`. 독서관리 임시 화면(`ReadingScreen.tsx`)은 새 폴더 없이 `src/reading`에 두었다.
 
 ## 3. 에셋과 렌더링
 

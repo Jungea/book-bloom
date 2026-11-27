@@ -123,3 +123,153 @@ body,
   font-size: 13px;
   text-align: center;
 }
+
+.view-switch {
+  position: fixed;
+  right: 8px;
+  bottom: 8px;
+  z-index: 10;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #8a7458;
+  border-radius: 6px;
+  background: rgba(20, 28, 36, 0.85);
+  color: #f4ead8;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.view-switch:active {
+  background: #52667a;
+}
+
+/* 독서관리(세로형) 임시 화면. 화면 가운데에 세로형 콘텐츠로 둔다. */
+.page--reading {
+  place-items: start center;
+  padding: 16px;
+}
+
+.reading-screen {
+  width: 100%;
+  max-width: 480px;
+  color: #f4ead8;
+  font-size: 15px;
+}
+
+.reading-screen__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.reading-screen__header h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.reading-screen__subtitle {
+  margin: 20px 0 8px;
+  font-size: 16px;
+}
+
+.reading-screen__empty {
+  margin: 0;
+  color: #b9b09f;
+}
+
+.reading-screen__form {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #2a3a48;
+}
+
+.reading-screen__form label {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  color: #cfc6b4;
+}
+
+.reading-screen input,
+.reading-screen select {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid #5a6b7a;
+  border-radius: 4px;
+  background: #1c2832;
+  color: inherit;
+  font: inherit;
+}
+
+.reading-screen button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #8a7458;
+  border-radius: 4px;
+  background: #3a4a5a;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.reading-screen button:active {
+  background: #52667a;
+}
+
+.reading-screen__danger {
+  border-color: #a65a4e;
+  color: #f2b8a8;
+}
+
+.reading-screen__feedback {
+  margin: 12px 0 0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #2f4a3a;
+}
+
+.reading-screen__feedback--error {
+  background: rgba(120, 40, 32, 0.92);
+  color: #fbeee8;
+}
+
+.reading-screen__list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reading-screen__book {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #2a3a48;
+}
+
+.reading-screen__book-title {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.reading-screen__book-meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: #b9b09f;
+}
+
+.reading-screen__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
