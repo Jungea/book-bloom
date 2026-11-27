@@ -26,6 +26,7 @@ import { storageCountText } from './statusLabels'
 import { CANVAS_ICON_GRID, drawPackageIcon, drawBookDownIcon } from './canvasIcons'
 import { trayDisplay } from './trayDisplay'
 import { RING_RADIUS, drawRingCanvas, ringTextureSize } from './ringCanvas'
+import { CLOTHES_COLORS, HAIR_COLORS, recolorVisitorPixels, visitorLook, visitorTextureKey } from './visitorLook'
 import { carriedBookPlacement } from './carriedBook'
 import { UI_FONT_FAMILY, UI_FONT_WEIGHT } from '../uiFont'
 import {
@@ -84,6 +85,8 @@ export class LibraryScene extends Phaser.Scene {
   private visitorWorld: VisitorWorld | null = null
   private sorter: ReturnSorter | null = null
   private ringSlots: RingSlot[] = []
+  /** 스프라이트 텍스처 필터(배율에 따라 정해진다). 나중에 만드는 손님 변형 텍스처에도 같게 쓴다. */
+  private spriteFilter: Phaser.Textures.FilterMode = Phaser.Textures.FilterMode.NEAREST
   private flyingBooks = new Set<Phaser.GameObjects.Image>()
   private visitorImages = new Map<string, Phaser.GameObjects.Image>()
   private carriedBookImages = new Map<string, Phaser.GameObjects.Image>()
@@ -114,11 +117,11 @@ export class LibraryScene extends Phaser.Scene {
     const width = this.logicalWidth
     const offset = (width - BASE_WIDTH) / 2
     this.cameras.main.setZoom(this.renderZoom).centerOn(width / 2, HEIGHT / 2)
-    const filter =
+    this.spriteFilter =
       spriteFilterFor(this.renderZoom) === 'linear' ? Phaser.Textures.FilterMode.LINEAR : Phaser.Textures.FilterMode.NEAREST
     this.textures.getTextureKeys().forEach((key) => {
       if (key.startsWith('__')) return
-      this.textures.get(key).setFilter(filter)
+      this.textures.get(key).setFilter(this.spriteFilter)
     })
 
     this.add.tileSprite(
@@ -321,6 +324,27 @@ export class LibraryScene extends Phaser.Scene {
     })
   }
 
+  /**
+   * 손님 번호에 맞는 머리색·옷색 변형 텍스처의 이름을 돌려준다. 없으면 원본 스프라이트에서 두 색만 바꿔 만든다
+   * (머리 모양·피부색·신발은 그대로). 만든 텍스처는 게임이 끝날 때까지 재사용한다.
+   */
+  private visitorTexture(visitorNum: number): string {
+    const look = visitorLook(visitorNum)
+    const key = visitorTextureKey(look)
+    if (this.textures.exists(key)) return key
+    const source = this.textures.get('visitor').getSourceImage() as CanvasImageSource & { width: number; height: number }
+    const texture = this.textures.createCanvas(key, source.width, source.height)
+    if (!texture) return 'visitor'
+    const ctx = texture.getContext()
+    ctx.drawImage(source, 0, 0)
+    const pixels = ctx.getImageData(0, 0, source.width, source.height)
+    recolorVisitorPixels(pixels.data, HAIR_COLORS[look.hair], CLOTHES_COLORS[look.clothes])
+    ctx.putImageData(pixels, 0, 0)
+    texture.refresh()
+    texture.setFilter(this.spriteFilter)
+    return key
+  }
+
   /** 월드의 손님을 스프라이트에 반영한다. 걷는 동안만 흔들린다(걷기 프레임이 아니다). */
   private syncVisitors(time: number) {
     const world = this.visitorWorld
@@ -333,7 +357,7 @@ export class LibraryScene extends Phaser.Scene {
       if (visitor.book) carriedIds.add(visitor.id)
       let image = this.visitorImages.get(visitor.id)
       if (!image) {
-        image = this.add.image(0, 0, 'visitor').setOrigin(0.5, 1).setScale(0.5)
+        image = this.add.image(0, 0, this.visitorTexture(visitorNumber(visitor.id))).setOrigin(0.5, 1).setScale(0.5)
         this.visitorImages.set(visitor.id, image)
       }
       const sway = isWalking(visitor) ? walkSway(time, visitorNumber(visitor.id)) : { lift: 0, angle: 0 }
