@@ -3,12 +3,43 @@ export interface LibraryBook {
   readonly title: string
 }
 
+/** 대출 기록의 상태. 진열 중인 도서(AVAILABLE)는 기록이 없다. DONE은 반납 정리를 마친 이력이다. */
+export type LoanStatus = 'RESERVED' | 'ON_LOAN' | 'RETURNED' | 'DONE'
+
+/** 도서 한 권의 대출 한 번. 시각은 Date.now() 같은 epoch 밀리초다. */
+export interface LoanRecord {
+  readonly id: string
+  readonly bookId: string
+  readonly status: LoanStatus
+  readonly reservedAt: number
+  readonly loanedAt: number | null
+  /** 반납 예정 시각. 절대 시각이라 앱이 꺼져 있던 동안의 경과를 재실행 때 반영할 수 있다. */
+  readonly dueAt: number | null
+  readonly returnedAt: number | null
+  readonly doneAt: number | null
+  /** 대출 중에 독서 보상이 회수된 도서. 반납 시점에 제거하고 반납 트레이에 넣지 않는다. */
+  readonly revokeOnReturn: boolean
+}
+
+/** 예약·대출·반납 대기·정리 이력. 책장 슬롯은 도서가 그대로 차지하며 이 기록으로 상태를 구분한다. */
+export interface Circulation {
+  readonly loans: readonly LoanRecord[]
+  /** 반납 트레이의 정리 대기 순서(대출 기록 id). */
+  readonly returnQueue: readonly string[]
+  readonly nextSeq: number
+}
+
+export function emptyCirculation(): Circulation {
+  return { loans: [], returnQueue: [], nextSeq: 1 }
+}
+
 export interface LibraryState {
   readonly shelfCapacity: number
   /** 인덱스가 책장 슬롯 번호이며 빈 슬롯은 null이다. */
   readonly shelf: readonly (LibraryBook | null)[]
   /** 책장에 자리가 없어 넘어온 도서를 획득 순서대로 보관한다. */
   readonly storage: readonly LibraryBook[]
+  readonly circulation: Circulation
 }
 
 export function createLibrary(shelfCapacity: number): LibraryState {
@@ -19,6 +50,7 @@ export function createLibrary(shelfCapacity: number): LibraryState {
     shelfCapacity,
     shelf: Array.from({ length: shelfCapacity }, () => null),
     storage: [],
+    circulation: emptyCirculation(),
   }
 }
 

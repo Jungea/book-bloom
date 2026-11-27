@@ -1,9 +1,9 @@
 import {
   acquireBook,
-  removeBook,
   renameBook,
   type LibraryState,
 } from '../core/library'
+import { reinstateBook, revokeBook } from '../core/circulation'
 import { isGenre, type Genre } from './genres'
 
 /** 읽고 싶음 / 읽는 중 / 일시 중단 / 완독 / 하차 (docs/03). */
@@ -118,7 +118,10 @@ function grant(game: Game, kind: RewardKind, book: RegisteredBook, session: Read
   }
   return {
     reading: { ...game.reading, rewards: [...game.reading.rewards, reward] },
-    library: acquireBook(game.library, { id: libraryBookId, title: book.title }),
+    library: reinstateBook(
+      acquireBook(game.library, { id: libraryBookId, title: book.title }),
+      libraryBookId,
+    ),
   }
 }
 
@@ -132,7 +135,7 @@ function revoke(game: Game, matches: (reward: RewardRecord) => boolean): Game {
       rewards: game.reading.rewards.filter((reward) => !matches(reward)),
     },
     library: revoked.reduce(
-      (library, reward) => removeBook(library, reward.libraryBookId),
+      (library, reward) => revokeBook(library, reward.libraryBookId),
       game.library,
     ),
   }

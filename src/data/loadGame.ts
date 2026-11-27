@@ -1,3 +1,4 @@
+import { resumeCirculation } from '../core/circulation'
 import { createLibrary } from '../core/library'
 import { restoreGame } from '../reading/gameSnapshot'
 import { createGame, type Game } from '../reading/reading'
@@ -27,7 +28,11 @@ const PROTECT_AND_RESTART = '기존 데이터 보호를 위해 변경을 중단�
  * 저장된 데이터가 없으면 빈 상태로, 복원하지 못한 데이터는 따로 보관한 뒤 빈 상태로 시작한다.
  * 불러오기에 실패했거나 복원하지 못한 데이터를 보관하지 못하면 시작하지 않고 실패(ok: false)를 돌려준다.
  */
-export async function loadGame(storage: GameStorage, shelfCapacity: number): Promise<LoadedGame> {
+export async function loadGame(
+  storage: GameStorage,
+  shelfCapacity: number,
+  nowMs: number = Date.now(),
+): Promise<LoadedGame> {
   const empty = createGame(createLibrary(shelfCapacity))
 
   let raw: unknown
@@ -40,7 +45,11 @@ export async function loadGame(storage: GameStorage, shelfCapacity: number): Pro
   if (raw === null) return { ok: true, game: empty, notice: null }
 
   const result = restoreGame(raw, shelfCapacity)
-  if (result.ok) return { ok: true, game: result.game, notice: null }
+  if (result.ok) {
+    // 재실행 사이에 지난 시간을 반영한다: 예약 해제, 반납 예정 시각이 지난 대출을 트레이로.
+    const library = resumeCirculation(result.game.library, nowMs)
+    return { ok: true, game: { ...result.game, library }, notice: null }
+  }
 
   console.error('저장 데이터를 복원하지 못했습니다.', result.reason, raw)
   try {

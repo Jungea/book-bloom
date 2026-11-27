@@ -35,9 +35,9 @@ describe('toGameSnapshot / restoreGame', () => {
     expect(restoreGame(roundTrip(toGameSnapshot(game)), 3)).toEqual({ ok: true, game })
   })
 
-  it('현재 저장 형식 버전은 2다', () => {
+  it('현재 저장 형식 버전은 3이다', () => {
     expect(toGameSnapshot(createGame(createLibrary(1))).version).toBe(GAME_SNAPSHOT_VERSION)
-    expect(GAME_SNAPSHOT_VERSION).toBe(2)
+    expect(GAME_SNAPSHOT_VERSION).toBe(3)
   })
 
   it('복원한 뒤에도 새 도서·회차 id가 기존 것과 겹치지 않는다', () => {

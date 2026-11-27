@@ -1,6 +1,13 @@
 import { hasBook } from '../core/library'
 import { restoreLibrary, SNAPSHOT_VERSION as LIBRARY_SNAPSHOT_VERSION } from '../core/librarySnapshot'
-import type { LibraryBook } from '../core/library'
+import {
+  emptyCirculation,
+  type Circulation,
+  type LibraryBook,
+  type LibraryState,
+  type LoanRecord,
+  type LoanStatus,
+} from '../core/library'
 import { isGenre } from './genres'
 import {
   createGame,
@@ -14,11 +21,12 @@ import {
 } from './reading'
 
 /** 저장 형식 버전. 구조를 바꾸면 올리고 이전 버전을 읽는 마이그레이션을 `restoreGame`에 추가한다. */
-export const GAME_SNAPSHOT_VERSION = 2
+export const GAME_SNAPSHOT_VERSION = 3
 
 /**
  * 저장소에 넣는 게임 상태. 독서 기록과 도서관을 한 덩어리로 저장한다.
  * v1은 도서관만 저장하던 형식이며 `restoreGame`이 독서 기록이 빈 상태로 읽는다.
+ * v2에는 대출 기록(`circulation`)이 없으며 빈 대출 기록으로 읽는다.
  */
 export interface GameSnapshot {
   readonly version: typeof GAME_SNAPSHOT_VERSION
@@ -26,6 +34,7 @@ export interface GameSnapshot {
     readonly shelfCapacity: number
     readonly shelf: readonly (LibraryBook | null)[]
     readonly storage: readonly LibraryBook[]
+    readonly circulation: Circulation
   }
   readonly reading: ReadingState
 }
@@ -35,10 +44,10 @@ export type RestoreGameResult =
   | { readonly ok: false; readonly reason: string }
 
 export function toGameSnapshot(game: Game): GameSnapshot {
-  const { shelfCapacity, shelf, storage } = game.library
+  const { shelfCapacity, shelf, storage, circulation } = game.library
   return {
     version: GAME_SNAPSHOT_VERSION,
-    library: { shelfCapacity, shelf, storage },
+    library: { shelfCapacity, shelf, storage, circulation },
     reading: game.reading,
   }
 }
@@ -97,6 +106,90 @@ function parseReward(entry: unknown): RewardRecord | null {
     return null
   }
   return { key, kind: kind as RewardKind, bookId, sessionId, libraryBookId }
+}
+
+const LOAN_STATUSES: readonly LoanStatus[] = ['RESERVED', 'ON_LOAN', 'RETURNED', 'DONE']
+
+function isTime(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
+
+function isTimeOrNull(value: unknown): value is number | null {
+  return value === null || isTime(value)
+}
+
+function parseLoan(entry: unknown): LoanRecord | null {
+  if (!isRecord(entry)) return null
+  const { id, bookId, status, reservedAt, loanedAt, dueAt, returnedAt, doneAt, revokeOnReturn } = entry
+  if (!isNonEmptyString(id) || !isNonEmptyString(bookId)) return null
+  if (!LOAN_STATUSES.includes(status as LoanStatus)) return null
+  if (!isTime(reservedAt) || !isTimeOrNull(loanedAt) || !isTimeOrNull(dueAt)) return null
+  if (!isTimeOrNull(returnedAt) || !isTimeOrNull(doneAt) || typeof revokeOnReturn !== 'boolean') return null
+
+  // 상태에 필요한 시각이 있는지 확인한다.
+  const loan = status as LoanStatus
+  if (loan === 'RESERVED') {
+    if (loanedAt !== null || dueAt !== null || returnedAt !== null || doneAt !== null) return null
+  } else if (loanedAt === null || dueAt === null) {
+    return null
+  }
+  if (loan === 'ON_LOAN' && (returnedAt !== null || doneAt !== null)) return null
+  if (loan === 'RETURNED' && (returnedAt === null || doneAt !== null)) return null
+  if (loan === 'DONE' && doneAt === null) return null
+  return { id, bookId, status: loan, reservedAt, loanedAt, dueAt, returnedAt, doneAt, revokeOnReturn }
+}
+
+/**
+ * 저장된 대출 기록을 검증한다. 어긋난 값은 실패로 본다.
+ * 책장 용량이 줄어 도서가 보관함으로 밀려난 경우에는 그 도서의 진행 중 기록만 버린다(임시 용량 변경 처리).
+ */
+function parseCirculation(raw: unknown, library: LibraryState): Parsed<Circulation> {
+  if (!isRecord(raw)) return bad('대출 기록이 객체가 아닙니다.')
+  const { nextSeq, returnQueue } = raw
+  if (!Number.isInteger(nextSeq) || (nextSeq as number) < 1) return bad('다음 대출 번호가 올바르지 않습니다.')
+
+  const parsed = parseArray(raw.loans, '대출 기록', parseLoan)
+  if (!parsed.ok) return parsed
+  const loans = parsed.value
+  if (hasDuplicates(loans.map((loan) => loan.id))) return bad('같은 id의 대출 기록이 중복되어 있습니다.')
+  for (const loan of loans) {
+    const number = /^loan-(\d+)$/.exec(loan.id)?.[1]
+    if (number !== undefined && Number(number) >= (nextSeq as number)) {
+      return bad('다음 대출 번호가 기존 대출 기록 번호보다 작거나 같습니다.')
+    }
+  }
+
+  const onShelf = new Set(library.shelf.flatMap((book) => (book ? [book.id] : [])))
+  const inStorage = new Set(library.storage.map((book) => book.id))
+  const kept: LoanRecord[] = []
+  for (const loan of loans) {
+    if (loan.status === 'DONE') {
+      kept.push(loan)
+      continue
+    }
+    if (!onShelf.has(loan.bookId)) {
+      if (inStorage.has(loan.bookId)) continue // 용량 축소로 보관함에 밀려난 도서
+      return bad('대출 기록이 도서관에 없는 도서를 가리킵니다.')
+    }
+    kept.push(loan)
+  }
+  const active = kept.filter((loan) => loan.status !== 'DONE')
+  if (hasDuplicates(active.map((loan) => loan.bookId))) {
+    return bad('한 도서에 진행 중인 대출 기록이 둘 이상입니다.')
+  }
+
+  if (!Array.isArray(returnQueue) || !returnQueue.every(isNonEmptyString)) {
+    return bad('반납 대기열이 올바르지 않습니다.')
+  }
+  if (hasDuplicates(returnQueue as string[])) return bad('반납 대기열에 중복이 있습니다.')
+  const returnedIds = new Set(kept.filter((loan) => loan.status === 'RETURNED').map((loan) => loan.id))
+  const droppedIds = new Set(loans.filter((loan) => !kept.includes(loan)).map((loan) => loan.id))
+  const queue = (returnQueue as string[]).filter((id) => !droppedIds.has(id))
+  if (queue.length !== returnedIds.size || !queue.every((id) => returnedIds.has(id))) {
+    return bad('반납 대기열이 반납 대기 중인 대출 기록과 맞지 않습니다.')
+  }
+
+  return { ok: true, value: { loans: kept, returnQueue: queue, nextSeq: nextSeq as number } }
 }
 
 function hasDuplicates(values: readonly string[]): boolean {
@@ -175,7 +268,8 @@ export function restoreGame(raw: unknown, shelfCapacity: number): RestoreGameRes
     return result.ok ? { ok: true, game: createGame(result.state) } : result
   }
 
-  if (raw.version !== GAME_SNAPSHOT_VERSION) {
+  // v2: 대출 기록이 없던 형식. 빈 대출 기록으로 시작한다.
+  if (raw.version !== GAME_SNAPSHOT_VERSION && raw.version !== 2) {
     return bad(`지원하지 않는 저장 데이터 버전입니다: ${String(raw.version)}`)
   }
   if (!isRecord(raw.library)) return bad('저장된 도서관이 객체가 아닙니다.')
@@ -189,5 +283,14 @@ export function restoreGame(raw: unknown, shelfCapacity: number): RestoreGameRes
   const reading = parseReading(raw.reading, library.state)
   if (!reading.ok) return reading
 
-  return { ok: true, game: { reading: reading.value, library: library.state } }
+  let libraryState = library.state
+  if (raw.version === GAME_SNAPSHOT_VERSION) {
+    const circulation = parseCirculation(raw.library.circulation, libraryState)
+    if (!circulation.ok) return circulation
+    libraryState = { ...libraryState, circulation: circulation.value }
+  } else {
+    libraryState = { ...libraryState, circulation: emptyCirculation() }
+  }
+
+  return { ok: true, game: { reading: reading.value, library: libraryState } }
 }

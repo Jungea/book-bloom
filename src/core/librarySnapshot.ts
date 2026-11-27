@@ -1,4 +1,4 @@
-import type { LibraryBook, LibraryState } from './library'
+import { emptyCirculation, type LibraryBook, type LibraryState } from './library'
 
 export const SNAPSHOT_VERSION = 1
 
@@ -95,5 +95,9 @@ export function restoreLibrary(raw: unknown, shelfCapacity: number): RestoreResu
     }
   }
 
-  return { ok: true, state: { shelfCapacity, shelf, storage: waiting.slice(next) } }
+  // v1 저장 데이터에는 대출 기록이 없다. 대출 기록은 게임 저장 v3부터 따로 복원한다.
+  return {
+    ok: true,
+    state: { shelfCapacity, shelf, storage: waiting.slice(next), circulation: emptyCirculation() },
+  }
 }
