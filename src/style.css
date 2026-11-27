@@ -147,22 +147,46 @@ body,
 
 /*
  * 독서관리(세로형) 임시 화면. 화면 가운데에 세로형 콘텐츠로 둔다.
- * 테마는 웜그레이·슬레이트: 배경 #f4f3f0, 카드·폼 #ffffff, 글자 #354047, 보조 글자 #687178, 경계선 #dedfdd, 강조 #3a5668.
- * 카드는 그림자 없이 경계선과 작은 모서리로만 구분한다.
- * 도서관 화면(캔버스, 어두운 바탕)과 개발자 패널은 바꾸지 않으므로 색은 이 화면 안에서만 정한다.
+ *
+ * 테마는 CSS 변수(토큰) 한 블록에서 정한다. 색을 바꾸려면 아래 `--reading-*` 값만 고치면 된다.
+ * 현재 테마는 화이트·슬레이트(사용자 확정): 배경·폼·도서 목록·입력 면 #ffffff, 주요 글자 #354047,
+ * 버튼·강조 #3a5668, 보조 글자 #687178, 구분선 #dedfdd. 도서 목록은 카드 테두리 대신 여백과 구분선으로 나눈다.
+ * 토큰은 이 화면(.page--reading) 안에서만 정의하므로 도서관 화면(캔버스, 어두운 바탕)과 개발자 패널은 영향받지 않는다.
  */
 .page--reading {
+  /* 면과 글자 */
+  --reading-bg: #ffffff;
+  --reading-surface: #ffffff; /* 폼·입력·도서 목록 면 */
+  --reading-text: #354047;
+  --reading-muted: #687178;
+  --reading-border: #dedfdd;
+  /* 버튼과 강조 */
+  --reading-accent: #3a5668;
+  --reading-accent-text: #ffffff; /* 강조색으로 채운 버튼 위의 글자 */
+  --reading-accent-pressed: #2e4554;
+  --reading-pressed: #eef2f4; /* 보조 버튼을 누르는 동안의 바탕 */
+  /* 삭제 */
+  --reading-danger: #a63d33;
+  --reading-danger-border: #c98f88;
+  /* 안내(성공·오류). 흰 바탕 위에서 눈에 띄도록 옅은 색 바탕을 쓴다. */
+  --reading-success-bg: #e6f1ea;
+  --reading-success-border: #b9d3c3;
+  --reading-success-text: #2c5a3f;
+  --reading-error-bg: #fbebe8;
+  --reading-error-border: #e3b5ad;
+  --reading-error-text: #8f2f26;
+
   place-items: start center;
   padding: 16px;
   color-scheme: light;
-  background: #f4f3f0;
-  color: #354047;
+  background: var(--reading-bg);
+  color: var(--reading-text);
 }
 
 .reading-screen {
   width: 100%;
   max-width: 480px;
-  color: #354047;
+  color: var(--reading-text);
   font-size: 15px;
 }
 
@@ -171,6 +195,8 @@ body,
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--reading-border);
 }
 
 .reading-screen__header h1 {
@@ -183,114 +209,116 @@ body,
   font-size: 16px;
 }
 
-/* 카드 밖(웜그레이 배경 위)의 보조 글자라 #687178(대비 4.48)보다 살짝 진하게 해 4.5 이상을 맞춘다. */
 .reading-screen__empty {
   margin: 0;
-  color: #646d74;
+  color: var(--reading-muted);
 }
 
+/* 폼은 면을 따로 두지 않고 흰 바탕 위에서 아래 구분선으로 나눈다. 도서 안의 수정 폼에는 구분선을 두지 않는다. */
 .reading-screen__form {
   display: grid;
   gap: 10px;
   margin-top: 16px;
-  padding: 12px;
-  border: 1px solid #dedfdd;
-  border-radius: 8px;
-  background: #ffffff;
+}
+
+.reading-screen > .reading-screen__form {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--reading-border);
 }
 
 .reading-screen__form label {
   display: grid;
   gap: 4px;
   font-size: 13px;
-  color: #687178;
+  color: var(--reading-muted);
 }
 
 .reading-screen input,
 .reading-screen select {
   min-height: 44px;
   padding: 0 10px;
-  border: 1px solid #dedfdd;
+  border: 1px solid var(--reading-border);
   border-radius: 4px;
-  background: #ffffff;
-  color: #354047;
+  background: var(--reading-surface);
+  color: var(--reading-text);
   font: inherit;
 }
 
 .reading-screen input::placeholder {
-  color: #687178;
+  color: var(--reading-muted);
 }
 
-/* 보조 버튼: 옅은 슬레이트 바탕에 슬레이트 글자. 등록·저장 같은 제출 버튼만 진하게 채운다. */
+/* 보조 버튼: 흰 바탕에 강조색 글자. 등록·저장 같은 제출 버튼만 강조색으로 채운다. */
 .reading-screen button {
   min-width: 44px;
   min-height: 44px;
   padding: 0 12px;
-  border: 1px solid transparent;
+  border: 1px solid var(--reading-border);
   border-radius: 4px;
-  background: #e8edf0;
-  color: #3a5668;
+  background: var(--reading-surface);
+  color: var(--reading-accent);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
 }
 
 .reading-screen button[type='submit'] {
-  background: #3a5668;
-  color: #ffffff;
+  border-color: var(--reading-accent);
+  background: var(--reading-accent);
+  color: var(--reading-accent-text);
 }
 
 .reading-screen button:active {
-  background: #d5dee4;
+  background: var(--reading-pressed);
 }
 
 .reading-screen button[type='submit']:active {
-  background: #2e4554;
+  background: var(--reading-accent-pressed);
 }
 
 .reading-screen input:focus-visible,
 .reading-screen select:focus-visible,
 .reading-screen button:focus-visible {
-  outline: 2px solid #3a5668;
+  outline: 2px solid var(--reading-accent);
   outline-offset: 2px;
 }
 
 /* 삭제처럼 되돌리기 어려운 동작. `.reading-screen button`보다 선택자 우선순위를 높여야 색이 실제로 적용된다. */
 .reading-screen button.reading-screen__danger {
-  border-color: #c98f88;
-  color: #a63d33;
+  border-color: var(--reading-danger-border);
+  color: var(--reading-danger);
 }
 
 .reading-screen__feedback {
   margin: 12px 0 0;
   padding: 8px 12px;
-  border: 1px solid #b9d3c3;
+  border: 1px solid var(--reading-success-border);
   border-radius: 6px;
-  background: #e6f1ea;
-  color: #2c5a3f;
+  background: var(--reading-success-bg);
+  color: var(--reading-success-text);
 }
 
 .reading-screen__feedback--error {
-  border-color: #e3b5ad;
-  background: #fbebe8;
-  color: #8f2f26;
+  border-color: var(--reading-error-border);
+  background: var(--reading-error-bg);
+  color: var(--reading-error-text);
 }
 
+/* 도서 목록: 항목 사이를 여백과 구분선으로 나눈다. 카드 테두리·배경·모서리는 쓰지 않는다. */
 .reading-screen__list {
   display: grid;
-  gap: 10px;
+  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
+  border-bottom: 1px solid var(--reading-border);
 }
 
 .reading-screen__book {
   display: grid;
   gap: 8px;
-  padding: 12px;
-  border: 1px solid #dedfdd;
-  border-radius: 8px;
-  background: #ffffff;
+  padding: 14px 0;
+  border-top: 1px solid var(--reading-border);
 }
 
 .reading-screen__book-title {
@@ -302,7 +330,7 @@ body,
   display: block;
   margin-top: 2px;
   font-size: 13px;
-  color: #687178;
+  color: var(--reading-muted);
 }
 
 .reading-screen__actions {
