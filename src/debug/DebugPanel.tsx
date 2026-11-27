@@ -1,4 +1,5 @@
 import { useState, useSyncExternalStore } from 'react'
+import { onLoanCount, returnedCount } from '../core/circulation'
 import { shelvedCount } from '../core/library'
 import type { VisitorWorld } from '../core/visitorWorld'
 import type { GameStore } from '../reading/gameStore'
@@ -15,7 +16,12 @@ interface DebugPanelProps {
 // 디버그 빌드에서만 불러온다(App.tsx 참고).
 export default function DebugPanel({ store, visitors }: DebugPanelProps) {
   const game = useSyncExternalStore(store.subscribe, store.getState)
-  const visitorCount = useSyncExternalStore(visitors.subscribe, () => visitors.getVisitors().length)
+  // 손님 수와 줄 길이를 문자열 하나로 읽어 변화가 없을 때 다시 그리지 않게 한다.
+  const visitorSummary = useSyncExternalStore(
+    visitors.subscribe,
+    () => `${visitors.getVisitors().length}/${visitors.getDeskQueue().length}`,
+  )
+  const [visitorCount, queueLength] = visitorSummary.split('/')
   const { library, reading } = game
   const shelved = shelvedCount(library)
   const [message, setMessage] = useState<string | null>(null)
@@ -43,7 +49,7 @@ export default function DebugPanel({ store, visitors }: DebugPanelProps) {
   return (
     <aside className="debug-panel" aria-label="개발자 테스트 패널">
       <p className="debug-panel__status">
-        책장 {shelved}/{library.shelfCapacity} · 보관함 {library.storage.length}
+        책장 {shelved}/{library.shelfCapacity} · 보관함 {library.storage.length} · 대출 중 {onLoanCount(library)} · 반납 대기 {returnedCount(library)}
       </p>
       <div className="debug-panel__buttons">
         <button type="button" onClick={() => acquire(1)}>도서 1권</button>
@@ -62,10 +68,16 @@ export default function DebugPanel({ store, visitors }: DebugPanelProps) {
         </button>
       </div>
 
-      <p className="debug-panel__status">손님 {visitorCount}명 (자동 생성 중)</p>
+      <p className="debug-panel__status">손님 {visitorCount}명 · 데스크 줄 {queueLength}명 (자동 생성 중)</p>
       <div className="debug-panel__buttons">
         <button type="button" onClick={() => setMessage(visitors.spawn() ? null : '동시 방문 인원이 가득 찼습니다.')}>
           손님 1명
+        </button>
+        <button
+          type="button"
+          onClick={() => setMessage(visitors.completeCheckout() ? null : '처리 중인 대출이 없습니다.')}
+        >
+          대출 즉시 완료
         </button>
         <button type="button" onClick={() => visitors.clear()}>손님 모두 제거</button>
       </div>

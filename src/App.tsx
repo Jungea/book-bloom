@@ -8,7 +8,8 @@ import { attachPersistence } from './data/persistGame'
 import { createVisitorWorld, type VisitorWorld } from './core/visitorWorld'
 import { GAME_STORE_KEY, LibraryScene, VISITOR_WORLD_KEY } from './game/LibraryScene'
 import { TEMP_SHELF_CAPACITY } from './game/shelfLayout'
-import { VISITOR_CONFIG } from './game/visitorLayout'
+import { TEMP_LOAN_DURATION_MS, VISITOR_CONFIG } from './game/visitorLayout'
+import { createCirculationHooks } from './reading/gameCirculation'
 import ReadingScreen from './reading/ReadingScreen'
 import { lockOrientation } from './orientation'
 
@@ -77,7 +78,16 @@ interface ShellProps {
 function Shell({ store, storage, loadNotice }: ShellProps) {
   const [view, setView] = useState<View>('library')
   // 손님은 메모리에만 있고(v0.2) 화면을 오가도 유지된다. 시간은 도서관 화면에서만 흐른다(임시 동작).
-  const [visitors] = useState<VisitorWorld>(() => createVisitorWorld(VISITOR_CONFIG))
+  const [visitors] = useState<VisitorWorld>(() =>
+    createVisitorWorld(
+      VISITOR_CONFIG,
+      createCirculationHooks(store, {
+        now: Date.now,
+        random: Math.random,
+        loanDurationMs: TEMP_LOAN_DURATION_MS,
+      }),
+    ),
+  )
   const [saveNotice, setSaveNotice] = useState<string | null>(null)
 
   useEffect(() => {

@@ -13,6 +13,7 @@ import spineGrayUrl from '../../assets/source/v4/books/book_spine_gray.png'
 import spineRedUrl from '../../assets/source/v4/books/book_spine_red.png'
 import spineTaupeUrl from '../../assets/source/v4/books/book_spine_taupe.png'
 import visitorUrl from '../../assets/source/v4/characters/visitor_idle.png'
+import { bookStatus } from '../core/circulation'
 import { storedCount, type LibraryState } from '../core/library'
 import { isWalking } from '../core/visitors'
 import type { VisitorWorld } from '../core/visitorWorld'
@@ -20,7 +21,7 @@ import type { GameStore } from '../reading/gameStore'
 import { SHELF_HEIGHT, SHELF_WIDTH, slotPosition, spineVariant } from './shelfLayout'
 import { BASE_WIDTH, FLOOR_Y, HEIGHT, SLOT_CENTERS, STATUS_HEIGHT } from './sceneLayout'
 import { storageLabel } from './statusLabels'
-import { walkSway } from './visitorLayout'
+import { VISITOR_HEIGHT, walkSway } from './visitorLayout'
 
 export const GAME_STORE_KEY = 'gameStore'
 export const VISITOR_WORLD_KEY = 'visitorWorld'
@@ -30,12 +31,18 @@ const SPINE_URLS = [spineBlueUrl, spineCreamUrl, spineGrayUrl, spineRedUrl, spin
 // 상태바 이미지 오른쪽에 있는 자리 표시 칸(논리 x 452~630)과 겹치지 않게 그 왼쪽 끝에 맞춘다.
 const STORAGE_LABEL_RIGHT = 440
 
+/** 손님 id(`visitor-12`)의 번호. 흔들림의 위상을 손님마다 다르게 하는 데 쓴다. */
+function visitorNumber(id: string): number {
+  return Number(id.split('-')[1]) || 0
+}
+
 export class LibraryScene extends Phaser.Scene {
   private shelfOrigin = { x: 0, y: 0 }
   private bookImages: Phaser.GameObjects.Image[] = []
   private storageText: Phaser.GameObjects.Text | null = null
   private visitorWorld: VisitorWorld | null = null
   private visitorImages = new Map<string, Phaser.GameObjects.Image>()
+  private carriedBookImages = new Map<string, Phaser.GameObjects.Image>()
 
   constructor() {
     super('LibraryScene')
@@ -109,10 +116,13 @@ export class LibraryScene extends Phaser.Scene {
     // 손님은 월드가 들고 있어 장면이 다시 만들어져도 이어진다. 시간은 이 장면의 update에서만 흐른다.
     this.visitorWorld = (this.registry.get(VISITOR_WORLD_KEY) as VisitorWorld | undefined) ?? null
     this.visitorImages = new Map()
+    this.carriedBookImages = new Map()
     this.syncVisitors(this.time.now)
     cleanups.push(() => {
       this.visitorImages.forEach((image) => image.destroy())
       this.visitorImages.clear()
+      this.carriedBookImages.forEach((image) => image.destroy())
+      this.carriedBookImages.clear()
       this.visitorWorld = null
     })
 
@@ -137,24 +147,39 @@ export class LibraryScene extends Phaser.Scene {
     if (!world) return
     const offset = (this.scale.width - BASE_WIDTH) / 2
     const alive = new Set<string>()
+    const carriedIds = new Set<string>()
     for (const visitor of world.getVisitors()) {
       alive.add(visitor.id)
+      if (visitor.book) carriedIds.add(visitor.id)
       let image = this.visitorImages.get(visitor.id)
       if (!image) {
         image = this.add.image(0, 0, 'visitor').setOrigin(0.5, 1).setScale(0.5)
         this.visitorImages.set(visitor.id, image)
       }
-      const sway = isWalking(visitor) ? walkSway(time, visitor.spot) : { lift: 0, angle: 0 }
-      image
-        .setPosition(offset + visitor.position.x, visitor.position.y - sway.lift)
-        .setAngle(sway.angle)
-        .setDepth(visitor.position.y)
+      const sway = isWalking(visitor) ? walkSway(time, visitorNumber(visitor.id)) : { lift: 0, angle: 0 }
+      const x = offset + visitor.position.x
+      const feetY = visitor.position.y - sway.lift
+      image.setPosition(x, feetY).setAngle(sway.angle).setDepth(visitor.position.y)
+
+      // 고른 도서는 퇴장할 때까지 머리 위에 보인다(대출 이후 표시 유지는 임시 결정).
+      let carried = this.carriedBookImages.get(visitor.id)
+      if (visitor.book && !carried) {
+        carried = this.add.image(0, 0, `spine${spineVariant(visitor.book.bookId)}`).setOrigin(0.5, 1).setScale(0.5)
+        this.carriedBookImages.set(visitor.id, carried)
+      }
+      if (carried) {
+        carried.setPosition(x, feetY - VISITOR_HEIGHT - 2).setDepth(visitor.position.y + 1)
+      }
     }
-    this.visitorImages.forEach((image, id) => {
-      if (alive.has(id)) return
-      image.destroy()
-      this.visitorImages.delete(id)
-    })
+    const drop = <T extends Phaser.GameObjects.Image>(images: Map<string, T>, keep: (id: string) => boolean) => {
+      images.forEach((image, id) => {
+        if (keep(id)) return
+        image.destroy()
+        images.delete(id)
+      })
+    }
+    drop(this.visitorImages, (id) => alive.has(id))
+    drop(this.carriedBookImages, (id) => carriedIds.has(id))
   }
 
   private renderBooks(state: LibraryState) {
@@ -164,11 +189,14 @@ export class LibraryScene extends Phaser.Scene {
     state.shelf.forEach((book, slot) => {
       if (!book) return
       const { x, y } = slotPosition(slot)
+      // 예약·대출 중이거나 반납 정리를 기다리는 도서는 슬롯을 지키는 반투명 쉐이프로 보인다.
+      const available = bookStatus(state, book.id) === 'AVAILABLE'
       this.bookImages.push(
         this.add
           .image(this.shelfOrigin.x + x, this.shelfOrigin.y + y, `spine${spineVariant(book.id)}`)
           .setOrigin(0.5, 1)
-          .setScale(0.5),
+          .setScale(0.5)
+          .setAlpha(available ? 1 : 0.35),
       )
     })
   }
