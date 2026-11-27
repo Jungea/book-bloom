@@ -12,9 +12,10 @@ import spineCreamUrl from '../../assets/source/v4/books/book_spine_cream.png'
 import spineGrayUrl from '../../assets/source/v4/books/book_spine_gray.png'
 import spineRedUrl from '../../assets/source/v4/books/book_spine_red.png'
 import spineTaupeUrl from '../../assets/source/v4/books/book_spine_taupe.png'
-import type { LibraryState } from '../core/library'
+import { storedCount, type LibraryState } from '../core/library'
 import type { GameStore } from '../reading/gameStore'
 import { SHELF_HEIGHT, SHELF_WIDTH, slotPosition, spineVariant } from './shelfLayout'
+import { storageLabel } from './statusLabels'
 
 export const GAME_STORE_KEY = 'gameStore'
 
@@ -25,10 +26,13 @@ const HEIGHT = 360
 const STATUS_HEIGHT = 32
 const FLOOR_Y = 240
 const SLOT_CENTERS = [80, 240, 400, 560] as const
+// 상태바 이미지 오른쪽에 있는 자리 표시 칸(논리 x 452~630)과 겹치지 않게 그 왼쪽 끝에 맞춘다.
+const STORAGE_LABEL_RIGHT = 440
 
 export class LibraryScene extends Phaser.Scene {
   private shelfOrigin = { x: 0, y: 0 }
   private bookImages: Phaser.GameObjects.Image[] = []
+  private storageText: Phaser.GameObjects.Text | null = null
 
   constructor() {
     super('LibraryScene')
@@ -81,6 +85,14 @@ export class LibraryScene extends Phaser.Scene {
       y: FLOOR_Y - SHELF_HEIGHT,
     }
     this.bookImages = []
+    this.storageText = this.add
+      .text(offset + STORAGE_LABEL_RIGHT, STATUS_HEIGHT / 2, '', {
+        fontFamily: 'sans-serif',
+        fontSize: '11px',
+        color: '#e9d5b9',
+      })
+      .setOrigin(1, 0.5)
+      .setResolution(2)
     const store = this.registry.get(GAME_STORE_KEY) as GameStore | undefined
     // 씬이 재시작(shutdown)되거나 게임째 파괴(destroy)될 때 모두 구독을 해제한다.
     // 해제하지 않으면 다른 화면에서 상태가 바뀔 때 죽은 씬이 그려 보려다 예외를 던진다.
@@ -100,6 +112,7 @@ export class LibraryScene extends Phaser.Scene {
   }
 
   private renderBooks(state: LibraryState) {
+    this.storageText?.setText(storageLabel(storedCount(state)))
     this.bookImages.forEach((image) => image.destroy())
     this.bookImages = []
     state.shelf.forEach((book, slot) => {

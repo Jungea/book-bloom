@@ -80,6 +80,10 @@ export function renameBook(state: LibraryState, bookId: string, title: string): 
   }
 }
 
+export function storedCount(state: LibraryState): number {
+  return state.storage.length
+}
+
 export function shelvedCount(state: LibraryState): number {
   return state.shelf.filter((book) => book !== null).length
 }
