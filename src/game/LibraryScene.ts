@@ -23,7 +23,7 @@ import type { GameStore } from '../reading/gameStore'
 import { SHELF_HEIGHT, SHELF_WIDTH, slotPosition, spineVariant } from './shelfLayout'
 import { BASE_WIDTH, FLOOR_Y, HEIGHT, SLOT_CENTERS, STATUS_HEIGHT, spriteFilterFor } from './sceneLayout'
 import { storageCountText } from './statusLabels'
-import { CANVAS_ICON_GRID, drawArchiveIcon, drawInboxIcon } from './canvasIcons'
+import { CANVAS_ICON_GRID, drawArchiveIcon, drawBookDownIcon } from './canvasIcons'
 import { trayDisplay } from './trayDisplay'
 import { ringArc } from './progressRing'
 import { carriedBookPlacement } from './carriedBook'
@@ -48,11 +48,11 @@ const STORAGE_ICON_X = 404
 const STORAGE_ICON_SIZE = 16
 const STORAGE_ICON_GAP = 4
 const STORAGE_COLOR = 0xe9d5b9
-// 반납 트레이(논리 높이 64) 위에 쌓인 책을 얹는 높이와 트레이 아이콘(16px, 권수는 표시하지 않는다)의 아래 끝 높이.
+// 반납 트레이(논리 높이 64) 위에 쌓인 책을 얹는 높이와 반납 대기 아이콘(20px, 권수는 표시하지 않는다)의 아래 끝 높이.
 // 화면을 보며 맞춘 임시 값이다.
 const TRAY_BOOKS_LIFT = 44
 const TRAY_ICON_LIFT = 70
-const TRAY_ICON_SIZE = 16
+const TRAY_ICON_SIZE = 20
 const TRAY_ICON_COLOR = 0x3a2a1a
 // 원형 진행률 링: 크기와 위치는 임시 값이다(최종 UI 미정). 트레이 링은 트레이 아이콘 왼쪽에 둔다.
 const RING_RADIUS = 7
@@ -163,7 +163,7 @@ export class LibraryScene extends Phaser.Scene {
       .setPosition(offset + SLOT_CENTERS[3] - TRAY_ICON_SIZE / 2, FLOOR_Y - TRAY_ICON_LIFT - TRAY_ICON_SIZE)
       .setScale(TRAY_ICON_SIZE / CANVAS_ICON_GRID)
       .setVisible(false)
-    drawInboxIcon(this.trayIcon, TRAY_ICON_COLOR)
+    drawBookDownIcon(this.trayIcon, TRAY_ICON_COLOR)
 
     this.add.rectangle(0, 0, width, STATUS_HEIGHT, 0x344b60).setOrigin(0, 0)
     this.add.image(width / 2, 0, 'statusBar').setOrigin(0.5, 0).setScale(0.5)

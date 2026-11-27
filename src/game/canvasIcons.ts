@@ -37,37 +37,36 @@ export function drawArchiveIcon(graphics: Graphics, color: number): void {
 }
 
 /**
- * 반납 트레이 아이콘 — lucide `inbox`: polyline `22 12 16 12 14 15 10 15 8 12 2 12`와
- * path `M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z`.
+ * 반납 대기 아이콘 — lucide `book-down`: path `M12 13V7`, path `m9 10 3 3 3-3`와
+ * path `M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20`(책 모양).
+ * 작은 크기(16~20px)에서도 알아보기 쉬워 트레이 표시에 쓴다(`inbox`는 16px에서 뭉개졌다).
  */
-export function drawInboxIcon(graphics: Graphics, color: number): void {
+export function drawBookDownIcon(graphics: Graphics, color: number): void {
   graphics.clear()
   graphics.lineStyle(CANVAS_ICON_STROKE, color, 1)
 
   graphics.beginPath()
-  graphics.moveTo(22, 12)
-  graphics.lineTo(16, 12)
-  graphics.lineTo(14, 15)
-  graphics.lineTo(10, 15)
-  graphics.lineTo(8, 12)
-  graphics.lineTo(2, 12)
+  graphics.moveTo(12, 13)
+  graphics.lineTo(12, 7)
   graphics.strokePath()
 
-  // 윗면 모서리 두 곳의 호는 중심이 (16.76, 6)·(7.24, 6), 반지름 2다.
-  const startRight = Math.atan2(5.11 - 6, 18.55 - 16.76)
-  const endLeft = Math.atan2(5.11 - 6, 5.45 - 7.24)
   graphics.beginPath()
-  graphics.moveTo(5.45, 5.11)
-  graphics.lineTo(2, 12)
-  graphics.lineTo(2, 18)
-  graphics.arc(4, 18, 2, Math.PI, Math.PI / 2, true)
-  graphics.lineTo(20, 20)
-  graphics.arc(20, 18, 2, Math.PI / 2, 0, true)
-  graphics.lineTo(22, 12)
-  graphics.lineTo(18.55, 5.11)
-  graphics.arc(16.76, 6, 2, startRight, -Math.PI / 2, true)
-  graphics.lineTo(7.24, 4)
-  graphics.arc(7.24, 6, 2, -Math.PI / 2, endLeft, true)
-  graphics.closePath()
+  graphics.moveTo(9, 10)
+  graphics.lineTo(12, 13)
+  graphics.lineTo(15, 10)
+  graphics.strokePath()
+
+  // 책 모양: 왼쪽 위 모서리(반지름 2.5), 오른쪽 위·아래 모서리(반지름 1), 왼쪽 아래의 반원(반지름 2.5, 중심 (6.5, 19.5)).
+  graphics.beginPath()
+  graphics.moveTo(4, 19.5)
+  graphics.lineTo(4, 4.5)
+  graphics.arc(6.5, 4.5, 2.5, Math.PI, (Math.PI * 3) / 2, false)
+  graphics.lineTo(19, 2)
+  graphics.arc(19, 3, 1, -Math.PI / 2, 0, false)
+  graphics.lineTo(20, 21)
+  graphics.arc(19, 21, 1, 0, Math.PI / 2, false)
+  graphics.lineTo(6.5, 22)
+  graphics.arc(6.5, 19.5, 2.5, Math.PI / 2, (Math.PI * 3) / 2, false)
+  graphics.lineTo(20, 17)
   graphics.strokePath()
 }
