@@ -362,3 +362,18 @@
 - Android 실기기·방향 전환: 미구현·미실시. 방향 전환은 새 의존성(또는 네이티브 코드)이 필요해 사용자 승인을 요청한다.
 - 미해결 사항: Android 방향 전환 구현(도서관 가로·독서관리 세로), Node 22 이상 환경에서의 APK 빌드, 실기기 설치·화면 비율·손가락 터치·재실행 복원 검증(사용자가 집에서 확인), v0.1 완료 표시는 그 이후.
 - Git 커밋 및 태그: 완료 보고에 기록, 태그 없음.
+
+## 2026-11-27 — Android 화면 방향 전환 구현(웹 확인까지, 기기 미검증)
+
+- 버전: v0.1 개발 중
+- 작업 목표: 도서관은 가로, 독서 관리는 세로가 되도록 Android 화면 방향 전환을 구현한다. 사용자가 새 의존성을 쓰지 않고 앱 안의 네이티브 코드로 하는 방식을 선택했다.
+- 완료한 작업: 로컬 Capacitor 플러그인 `OrientationPlugin`(`lock({ mode: 'portrait' | 'landscape' })`)을 추가하고 `MainActivity`에서 `super.onCreate` 전에 등록했다. 웹 쪽 `src/orientation.ts`는 Android 앱에서만 플러그인을 호출하고 웹에서는 아무것도 하지 않으며 실패해도 앱을 멈추지 않는다. `Shell`이 화면(`view`)이 바뀔 때마다 호출한다. 시작 방향은 기존 매니페스트의 `landscape`를 유지한다. 매니페스트의 `configChanges`에 `orientation`이 있어 방향이 바뀌어도 액티비티가 다시 만들어지지 않으므로 상태가 유지될 것으로 보지만 기기에서 확인하지 않았다.
+- 기술적 의사결정: 새 npm 의존성 없음. 웹의 `screen.orientation.lock()`은 Android WebView에서 지원되지 않을 가능성이 높아 쓰지 않았다. 새 폴더 없이 `src/orientation.ts`를 두었다. 직접 쓴 네이티브 코드라 실기기 검증이 필수다.
+- 수정한 파일: `android/app/src/main/java/kr/kro/bookbloom/OrientationPlugin.java`(신규), `MainActivity.java`, `src/orientation.ts`(+테스트, 신규), `src/App.tsx`, `README.md`, 본 문서.
+- 자동 테스트 결과: `npm test` 14개 파일 167개 통과(이전 165개 + 방향 매핑·웹 무동작 2개). `npm run typecheck`, `npm run build` 통과.
+- PC 웹 테스트 결과(일반 빌드, `vite preview`): 도서관↔독서 관리를 3회 왕복하는 동안 화면이 정상 전환되고, 저장 데이터(책장 44·보관함 1·도서 23권)가 그대로이며 저장 알림과 스크립트 오류가 없음. 방향 전환 호출은 웹에서 동작하지 않으므로 실제 회전은 확인하지 못했다.
+- Android 빌드·네이티브 컴파일 확인 결과: **미실시**. 이 PC에서는 Capacitor CLI가 Node 22 이상, Capacitor Android 라이브러리가 Java 21을 요구하지만 설치된 것은 Node 20.20.2와 JDK 17이다. `cap sync`와 Gradle 빌드를 할 수 없다. 대신 `javac`로 새 Java 두 파일만 부분 확인했다(안드로이드 `android.jar`와 Capacitor 소스 사용). androidx·cordova 라이브러리가 없어 Capacitor 소스 쪽에서 오류 330건이 나지만 새 두 파일에서는 오류가 없었고, 사용한 Capacitor API(`Plugin.getActivity()`, `BridgeActivity.registerPlugin`, `PluginCall.getString`·`reject`·`resolve`)의 시그니처는 소스와 대조했다. 이 부분 확인은 컴파일 성공의 증거가 아니다.
+- Android 실기기 테스트 결과: 미실시. 사용자가 집에서 확인할 항목: 설치, 화면 비율, 손가락 터치, 도서관→독서 관리 전환 시 세로, 돌아올 때 가로, 전환 후 상태 유지, 앱 재실행 후 복원.
+- 미해결 사항: 네이티브 컴파일과 APK 빌드(Node 22·JDK 21 환경 필요), 실기기 방향 전환 동작, 회전 중 Phaser 장면 재배치, 시스템 상태 표시줄 영역 처리. v0.1은 완료로 표시하지 않는다.
+- 다음 작업: 사용자가 집에서 `npm run android:sync` 후 APK를 빌드해 위 항목을 확인한다.
+- Git 커밋 및 태그: 완료 보고에 기록, 태그 없음.

@@ -8,6 +8,7 @@ import { attachPersistence } from './data/persistGame'
 import { GAME_STORE_KEY, LibraryScene } from './game/LibraryScene'
 import { TEMP_SHELF_CAPACITY } from './game/shelfLayout'
 import ReadingScreen from './reading/ReadingScreen'
+import { lockOrientation } from './orientation'
 
 // 테스트 패널과 테스트 데이터는 개발 서버(DEV)나 `--mode debug` 빌드에서만 쓴다.
 // 일반 빌드에서는 조건이 상수로 평가되어 패널 코드가 번들에서 빠진다.
@@ -87,6 +88,11 @@ function Shell({ store, storage, loadNotice }: ShellProps) {
     )
     return persistence.detach
   }, [store, storage])
+
+  // Android 앱에서는 화면에 맞게 방향을 바꾼다(도서관 가로, 독서 관리 세로). 웹에서는 아무 동작이 없다.
+  useEffect(() => {
+    void lockOrientation(view)
+  }, [view])
 
   const notice = saveNotice ?? loadNotice
 
