@@ -63,9 +63,9 @@ interface RingSlot {
   /** 텍스처에 마지막으로 그린 진행률(아직 그리지 않았으면 NaN). */
   progress: number
 }
-const TRAY_RING_OFFSET = { x: -(TRAY_ICON_SIZE / 2 + RING_RADIUS + 4), y: -(TRAY_ICON_LIFT + TRAY_ICON_SIZE / 2) }
+const TRAY_RING_OFFSET = { x: -(TRAY_ICON_SIZE / 2 + RING_RADIUS + 5), y: -(TRAY_ICON_LIFT + TRAY_ICON_SIZE / 2) }
 // 데스크 링은 머리 위에 눕혀 얹은 책 바로 위, 손님 가운데에 둔다(책과 겹치지 않게 책의 최대 두께만큼 띄운다).
-const DESK_RING_OFFSET = { x: 0, y: -(VISITOR_HEAD_TOP + CARRIED_BOOK_MAX_THICKNESS + RING_RADIUS + 3) }
+const DESK_RING_OFFSET = { x: 0, y: -(VISITOR_HEAD_TOP + CARRIED_BOOK_MAX_THICKNESS + RING_RADIUS + 4) }
 
 /** 손님 id(`visitor-12`)의 번호. 흔들림의 위상을 손님마다 다르게 하는 데 쓴다. */
 function visitorNumber(id: string): number {
