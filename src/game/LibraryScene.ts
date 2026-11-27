@@ -12,20 +12,21 @@ import spineCreamUrl from '../../assets/source/v4/books/book_spine_cream.png'
 import spineGrayUrl from '../../assets/source/v4/books/book_spine_gray.png'
 import spineRedUrl from '../../assets/source/v4/books/book_spine_red.png'
 import spineTaupeUrl from '../../assets/source/v4/books/book_spine_taupe.png'
+import visitorUrl from '../../assets/source/v4/characters/visitor_idle.png'
 import { storedCount, type LibraryState } from '../core/library'
+import { isWalking } from '../core/visitors'
+import type { VisitorWorld } from '../core/visitorWorld'
 import type { GameStore } from '../reading/gameStore'
 import { SHELF_HEIGHT, SHELF_WIDTH, slotPosition, spineVariant } from './shelfLayout'
+import { BASE_WIDTH, FLOOR_Y, HEIGHT, SLOT_CENTERS, STATUS_HEIGHT } from './sceneLayout'
 import { storageLabel } from './statusLabels'
+import { walkSway } from './visitorLayout'
 
 export const GAME_STORE_KEY = 'gameStore'
+export const VISITOR_WORLD_KEY = 'visitorWorld'
 
 const SPINE_URLS = [spineBlueUrl, spineCreamUrl, spineGrayUrl, spineRedUrl, spineTaupeUrl]
 
-const BASE_WIDTH = 640
-const HEIGHT = 360
-const STATUS_HEIGHT = 32
-const FLOOR_Y = 240
-const SLOT_CENTERS = [80, 240, 400, 560] as const
 // 상태바 이미지 오른쪽에 있는 자리 표시 칸(논리 x 452~630)과 겹치지 않게 그 왼쪽 끝에 맞춘다.
 const STORAGE_LABEL_RIGHT = 440
 
@@ -33,6 +34,8 @@ export class LibraryScene extends Phaser.Scene {
   private shelfOrigin = { x: 0, y: 0 }
   private bookImages: Phaser.GameObjects.Image[] = []
   private storageText: Phaser.GameObjects.Text | null = null
+  private visitorWorld: VisitorWorld | null = null
+  private visitorImages = new Map<string, Phaser.GameObjects.Image>()
 
   constructor() {
     super('LibraryScene')
@@ -47,6 +50,7 @@ export class LibraryScene extends Phaser.Scene {
     this.load.image('monitor', monitorUrl)
     this.load.image('bookshelf', bookshelfUrl)
     this.load.image('returnTray', returnTrayUrl)
+    this.load.image('visitor', visitorUrl)
     SPINE_URLS.forEach((url, i) => this.load.image(`spine${i}`, url))
   }
 
@@ -102,6 +106,16 @@ export class LibraryScene extends Phaser.Scene {
       cleanups.push(store.subscribe(() => this.renderBooks(store.getState().library)))
     }
 
+    // 손님은 월드가 들고 있어 장면이 다시 만들어져도 이어진다. 시간은 이 장면의 update에서만 흐른다.
+    this.visitorWorld = (this.registry.get(VISITOR_WORLD_KEY) as VisitorWorld | undefined) ?? null
+    this.visitorImages = new Map()
+    this.syncVisitors(this.time.now)
+    cleanups.push(() => {
+      this.visitorImages.forEach((image) => image.destroy())
+      this.visitorImages.clear()
+      this.visitorWorld = null
+    })
+
     this.scale.on('resize', this.handleResize, this)
     const scale = this.scale
     cleanups.push(() => scale.off('resize', this.handleResize, this))
@@ -109,6 +123,38 @@ export class LibraryScene extends Phaser.Scene {
     const release = () => cleanups.splice(0).forEach((cleanup) => cleanup())
     this.events.once('shutdown', release)
     this.events.once('destroy', release)
+  }
+
+  update(time: number, delta: number) {
+    if (!this.visitorWorld) return
+    this.visitorWorld.tick(delta)
+    this.syncVisitors(time)
+  }
+
+  /** 월드의 손님을 스프라이트에 반영한다. 걷는 동안만 흔들린다(걷기 프레임이 아니다). */
+  private syncVisitors(time: number) {
+    const world = this.visitorWorld
+    if (!world) return
+    const offset = (this.scale.width - BASE_WIDTH) / 2
+    const alive = new Set<string>()
+    for (const visitor of world.getVisitors()) {
+      alive.add(visitor.id)
+      let image = this.visitorImages.get(visitor.id)
+      if (!image) {
+        image = this.add.image(0, 0, 'visitor').setOrigin(0.5, 1).setScale(0.5)
+        this.visitorImages.set(visitor.id, image)
+      }
+      const sway = isWalking(visitor) ? walkSway(time, visitor.spot) : { lift: 0, angle: 0 }
+      image
+        .setPosition(offset + visitor.position.x, visitor.position.y - sway.lift)
+        .setAngle(sway.angle)
+        .setDepth(visitor.position.y)
+    }
+    this.visitorImages.forEach((image, id) => {
+      if (alive.has(id)) return
+      image.destroy()
+      this.visitorImages.delete(id)
+    })
   }
 
   private renderBooks(state: LibraryState) {

@@ -1,5 +1,6 @@
 import { useState, useSyncExternalStore } from 'react'
 import { shelvedCount } from '../core/library'
+import type { VisitorWorld } from '../core/visitorWorld'
 import type { GameStore } from '../reading/gameStore'
 import { registerBook, startReading, type Game, type Outcome } from '../reading/reading'
 import { readingActions, readingStatusLabel, testBookInput } from './readingActions'
@@ -7,12 +8,14 @@ import { createTestBooks, nextTestSerial } from './testBooks'
 
 interface DebugPanelProps {
   store: GameStore
+  visitors: VisitorWorld
 }
 
 // 개발자 테스트 패널. 실제 코어 함수(store)를 호출하며 저장은 상태 변경을 따라 자동으로 된다.
 // 디버그 빌드에서만 불러온다(App.tsx 참고).
-export default function DebugPanel({ store }: DebugPanelProps) {
+export default function DebugPanel({ store, visitors }: DebugPanelProps) {
   const game = useSyncExternalStore(store.subscribe, store.getState)
+  const visitorCount = useSyncExternalStore(visitors.subscribe, () => visitors.getVisitors().length)
   const { library, reading } = game
   const shelved = shelvedCount(library)
   const [message, setMessage] = useState<string | null>(null)
@@ -57,6 +60,14 @@ export default function DebugPanel({ store }: DebugPanelProps) {
         >
           초기화
         </button>
+      </div>
+
+      <p className="debug-panel__status">손님 {visitorCount}명 (자동 생성 중)</p>
+      <div className="debug-panel__buttons">
+        <button type="button" onClick={() => setMessage(visitors.spawn() ? null : '동시 방문 인원이 가득 찼습니다.')}>
+          손님 1명
+        </button>
+        <button type="button" onClick={() => visitors.clear()}>손님 모두 제거</button>
       </div>
 
       <p className="debug-panel__status">독서 기록 · 등록 도서 {reading.books.length}</p>

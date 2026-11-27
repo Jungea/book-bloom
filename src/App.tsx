@@ -5,8 +5,10 @@ import { createIndexedDbStorage } from './data/indexedDbStorage'
 import type { GameStorage } from './data/gameStorage'
 import { loadGame } from './data/loadGame'
 import { attachPersistence } from './data/persistGame'
-import { GAME_STORE_KEY, LibraryScene } from './game/LibraryScene'
+import { createVisitorWorld, type VisitorWorld } from './core/visitorWorld'
+import { GAME_STORE_KEY, LibraryScene, VISITOR_WORLD_KEY } from './game/LibraryScene'
 import { TEMP_SHELF_CAPACITY } from './game/shelfLayout'
+import { VISITOR_CONFIG } from './game/visitorLayout'
 import ReadingScreen from './reading/ReadingScreen'
 import { lockOrientation } from './orientation'
 
@@ -74,6 +76,8 @@ interface ShellProps {
  */
 function Shell({ store, storage, loadNotice }: ShellProps) {
   const [view, setView] = useState<View>('library')
+  // 손님은 메모리에만 있고(v0.2) 화면을 오가도 유지된다. 시간은 도서관 화면에서만 흐른다(임시 동작).
+  const [visitors] = useState<VisitorWorld>(() => createVisitorWorld(VISITOR_CONFIG))
   const [saveNotice, setSaveNotice] = useState<string | null>(null)
 
   useEffect(() => {
@@ -99,7 +103,7 @@ function Shell({ store, storage, loadNotice }: ShellProps) {
   return (
     <main className={view === 'reading' ? 'page page--reading' : 'page'}>
       {view === 'library' ? (
-        <LibraryView store={store} onOpenReading={() => setView('reading')} />
+        <LibraryView store={store} visitors={visitors} onOpenReading={() => setView('reading')} />
       ) : (
         <ReadingScreen store={store} onOpenLibrary={() => setView('library')} />
       )}
@@ -114,10 +118,11 @@ function Shell({ store, storage, loadNotice }: ShellProps) {
 
 interface LibraryViewProps {
   store: GameStore
+  visitors: VisitorWorld
   onOpenReading: () => void
 }
 
-function LibraryView({ store, onOpenReading }: LibraryViewProps) {
+function LibraryView({ store, visitors, onOpenReading }: LibraryViewProps) {
   const canvasHost = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -138,7 +143,10 @@ function LibraryView({ store, onOpenReading }: LibraryViewProps) {
         autoCenter: Phaser.Scale.CENTER_BOTH,
       },
       callbacks: {
-        preBoot: (instance) => instance.registry.set(GAME_STORE_KEY, store),
+        preBoot: (instance) => {
+          instance.registry.set(GAME_STORE_KEY, store)
+          instance.registry.set(VISITOR_WORLD_KEY, visitors)
+        },
       },
       scene: [LibraryScene],
     })
@@ -154,7 +162,7 @@ function LibraryView({ store, onOpenReading }: LibraryViewProps) {
       observer.disconnect()
       game.destroy(true)
     }
-  }, [store])
+  }, [store, visitors])
 
   return (
     <>
@@ -165,7 +173,7 @@ function LibraryView({ store, onOpenReading }: LibraryViewProps) {
       </button>
       {DebugPanel && (
         <Suspense fallback={null}>
-          <DebugPanel store={store} />
+          <DebugPanel store={store} visitors={visitors} />
         </Suspense>
       )}
     </>
