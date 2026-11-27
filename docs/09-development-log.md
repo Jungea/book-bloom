@@ -805,3 +805,15 @@
 - PC 웹 확인(개발 서버): 반납 대기가 있을 때 트레이 위에 책에 화살표가 있는 아이콘이 또렷하게 보인다. 확대 그림에서 모양이 lucide `BookDown`과 같다.
 - 확인하지 못한 것(미실시): Android 실기기(폰 연결 해제), 사용자가 이 모양을 받아들이는지(다른 아이콘 후보로 바꿀 수 있음).
 - Git 커밋 및 태그: 완료 보고에 기록, 태그 없음.
+
+## 2026-11-28 — 보관함 아이콘 모양 수정: Archive 16px → Package 20px
+
+- 버전: v0.3 개발 중 (화면 동작·Android 검증 전)
+- 요청(사용자): 보관함 아이콘도 작아졌을 때 모양이 예쁘지 않다(캡처: 작은 상자가 뭉개져 보임).
+- 원인 확인: 반납 아이콘과 같은 이유다. `Archive`는 도형이 맞지만 16px에서 선이 1.3px라 뚜껑과 몸통이 뭉개진다.
+- 완료한 작업: 실제 크기(16·20·24px)로 lucide 후보(`archive`, `package`, `box`, `boxes`, `package-open`, `warehouse`, `library-big`, `folder-archive`)를 비교해 16~20px에서 가장 또렷하고 보관함 뜻에도 맞는 `Package`(상자)를 골랐다. 크기를 16px에서 20px로 키웠다(아이콘 위치는 숫자가 세 자리여도 자리 표시 칸 452를 넘지 않게 x=400). `drawArchiveIcon`을 `drawPackageIcon`으로 바꿨다(여섯 모서리 호의 중심·방향을 lucide 도형 데이터에서 계산, 확대 그림으로 lucide `Package`와 같은 모양임을 확인). 반납 아이콘(`BookDown`, 20px)과 크기를 맞췄다.
+- 수정한 파일: `src/game/canvasIcons.ts`, `src/game/LibraryScene.ts`, `docs/04-ui-ux.md`, 본 문서.
+- 자동 테스트 결과: `npm test` 34개 파일 359개 통과. `npm run typecheck`, `npm run build` 통과.
+- PC 웹 확인(개발 서버): 상태바에 상자 아이콘과 숫자 `6`이 또렷하게 보이고 자리 표시 칸과 겹치지 않는다. 확대 그림에서 모양이 lucide `Package`와 같다.
+- 확인하지 못한 것(미실시): Android 실기기(폰 연결 해제), 사용자가 이 모양을 받아들이는지(다른 후보로 바꿀 수 있음).
+- Git 커밋 및 태그: 완료 보고에 기록, 태그 없음.

@@ -23,7 +23,7 @@ import type { GameStore } from '../reading/gameStore'
 import { SHELF_HEIGHT, SHELF_WIDTH, slotPosition, spineVariant } from './shelfLayout'
 import { BASE_WIDTH, FLOOR_Y, HEIGHT, SLOT_CENTERS, STATUS_HEIGHT, spriteFilterFor } from './sceneLayout'
 import { storageCountText } from './statusLabels'
-import { CANVAS_ICON_GRID, drawArchiveIcon, drawBookDownIcon } from './canvasIcons'
+import { CANVAS_ICON_GRID, drawPackageIcon, drawBookDownIcon } from './canvasIcons'
 import { trayDisplay } from './trayDisplay'
 import { ringArc } from './progressRing'
 import { carriedBookPlacement } from './carriedBook'
@@ -42,10 +42,10 @@ export const SORTER_KEY = 'returnSorter'
 
 const SPINE_URLS = [spineBlueUrl, spineCreamUrl, spineGrayUrl, spineRedUrl, spineTaupeUrl]
 
-// 보관함 아이콘(16px)과 그 오른쪽 숫자. 상태바 이미지 오른쪽의 자리 표시 칸(논리 x 452~630)과 겹치지 않도록,
+// 보관함 아이콘(20px)과 그 오른쪽 숫자. 상태바 이미지 오른쪽의 자리 표시 칸(논리 x 452~630)과 겹치지 않도록,
 // 숫자가 세 자리여도 그 칸을 넘지 않는 위치에 둔다.
-const STORAGE_ICON_X = 404
-const STORAGE_ICON_SIZE = 16
+const STORAGE_ICON_X = 400
+const STORAGE_ICON_SIZE = 20
 const STORAGE_ICON_GAP = 4
 const STORAGE_COLOR = 0xe9d5b9
 // 반납 트레이(논리 높이 64) 위에 쌓인 책을 얹는 높이와 반납 대기 아이콘(20px, 권수는 표시하지 않는다)의 아래 끝 높이.
@@ -178,7 +178,7 @@ export class LibraryScene extends Phaser.Scene {
       .graphics()
       .setPosition(offset + STORAGE_ICON_X, (STATUS_HEIGHT - STORAGE_ICON_SIZE) / 2)
       .setScale(STORAGE_ICON_SIZE / CANVAS_ICON_GRID)
-    drawArchiveIcon(storageIcon, STORAGE_COLOR)
+    drawPackageIcon(storageIcon, STORAGE_COLOR)
     this.storageText = this.add
       .text(offset + STORAGE_ICON_X + STORAGE_ICON_SIZE + STORAGE_ICON_GAP, STATUS_HEIGHT / 2, '', {
         fontFamily: UI_FONT_FAMILY,
