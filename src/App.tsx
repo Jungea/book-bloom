@@ -16,25 +16,29 @@ const DebugPanel = DEBUG_BUILD ? lazy(() => import('./debug/DebugPanel')) : null
 // 테스트 데이터가 실제 데이터와 섞이지 않도록 저장소 이름을 나눈다.
 const DATABASE_NAME = DEBUG_BUILD ? 'bookbloom-debug' : 'bookbloom'
 
-interface Boot {
-  store: GameStore
-  storage: GameStorage
-  loadNotice: string | null
-}
+type Boot =
+  | { ok: true; store: GameStore; storage: GameStorage; loadNotice: string | null }
+  | { ok: false; message: string }
 
 export function App() {
   const [boot, setBoot] = useState<Boot | null>(null)
 
   // 저장된 게임(독서 기록·도서관)을 먼저 불러온 뒤 게임을 시작한다. 책이 비었다가 채워지는 깜빡임을 막는다.
+  // 불러오지 못하면 게임을 시작하지 않는다. 저장소·저장 연결을 만들지 않으므로 기존 데이터를 덮어쓸 수 없다.
   useEffect(() => {
     let cancelled = false
     const storage = createIndexedDbStorage(DATABASE_NAME)
-    void loadGame(storage, TEMP_SHELF_CAPACITY).then(({ game, notice }) => {
+    void loadGame(storage, TEMP_SHELF_CAPACITY).then((loaded) => {
       if (cancelled) return
+      if (!loaded.ok) {
+        setBoot({ ok: false, message: loaded.message })
+        return
+      }
       setBoot({
-        store: createGameStore(TEMP_SHELF_CAPACITY, game),
+        ok: true,
+        store: createGameStore(TEMP_SHELF_CAPACITY, loaded.game),
         storage,
-        loadNotice: notice,
+        loadNotice: loaded.notice,
       })
     })
     return () => {
@@ -43,6 +47,15 @@ export function App() {
   }, [])
 
   if (!boot) return <main className="page" />
+  if (!boot.ok) {
+    return (
+      <main className="page">
+        <p className="load-error" role="alert">
+          {boot.message}
+        </p>
+      </main>
+    )
+  }
   return <Shell store={boot.store} storage={boot.storage} loadNotice={boot.loadNotice} />
 }
 

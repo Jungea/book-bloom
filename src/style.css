@@ -273,3 +273,15 @@ body,
   flex-wrap: wrap;
   gap: 6px;
 }
+
+.load-error {
+  max-width: min(480px, calc(100vw - 32px));
+  margin: 0;
+  padding: 16px 20px;
+  border-radius: 8px;
+  background: rgba(120, 40, 32, 0.92);
+  color: #fbeee8;
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: center;
+}
