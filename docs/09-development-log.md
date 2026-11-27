@@ -348,3 +348,17 @@
 - 미해결 사항: 보관함 UI의 최종 위치·모양과 목록 보기, 책 선택·제목 표시 결정, 책장 용량 확정, 두 탭 동시 사용 보호(후속), Android 방향 전환·실기기 검증, UI 상세 설계.
 - 다음 작업: 사용자 결정에 따라 책 선택·제목 표시 또는 남은 v0.1 체크리스트 항목.
 - Git 커밋 및 태그: 완료 보고에 기록, 태그 없음.
+
+## 2026-11-27 — 좁은 화면·일반 빌드 보관함 표시 확인과 이 PC의 Android 빌드 가능 여부
+
+- 버전: v0.1 개발 중
+- 작업 목표: v0.1에서 실기기 검증만 남도록 하는 마무리의 첫 단계. 웹 미검증 항목(375~400px 좁은 화면, 일반 빌드의 `보관함 N권`)을 확인하고 Android 빌드 가능 여부를 점검한다. 소스 변경 없음.
+- 자동 테스트 결과: `npm test` 13개 파일 165개 통과. `npm run typecheck`, `npm run build`, `npm run build:debug` 통과.
+- PC 웹 테스트 결과(일반 빌드, `vite preview`, 새 데이터베이스에서 도서 23권 등록·시작, 22권 완독으로 책장 44권·보관함 1권 상태를 만듦):
+  - 일반 빌드에 개발자 패널이 없고, 상태바에 `보관함 1권`이 표시되며 저장 데이터도 책장 44·보관함 1로 일치함.
+  - 375×812와 400×700: 가로 넘침 없음(문서 너비와 창 너비 같음). 도서관 장면은 폭에 맞춰 축소되어 400px에서 가로 400×세로 225로 표시되고, 375px에서는 `보관함 N권` 글자가 매우 작다(약 6px). 독서 관리 화면은 요소가 화면 밖으로 나가지 않음. 도서관↔독서관리 전환 후 저장 알림 없음.
+  - 콘솔에 Phaser `Framebuffer status: Incomplete Attachment` 오류가 일반 빌드 번들에서도 1건 기록됐다. 화면 표시에는 영향이 보이지 않았고 원인은 미확정이다.
+- Android 빌드 확인 결과: 이 PC에서는 `npm run android:sync`가 실패한다. Capacitor CLI가 Node 22 이상을 요구하는데 설치된 Node는 20.20.2이다(`[fatal] The Capacitor CLI requires NodeJS >=22.0.0`). `cap sync`로 만들어지는 `android/capacitor.settings.gradle`, `android/app/capacitor.build.gradle`, `android/app/src/main/assets/public`이 이 체크아웃에 없어 `gradlew.bat assembleDebug`도 의미 있게 실행할 수 없다고 판단해 시도하지 않았다. Android SDK(`ANDROID_HOME`)와 Java 17은 있다. APK 빌드는 미실시.
+- Android 실기기·방향 전환: 미구현·미실시. 방향 전환은 새 의존성(또는 네이티브 코드)이 필요해 사용자 승인을 요청한다.
+- 미해결 사항: Android 방향 전환 구현(도서관 가로·독서관리 세로), Node 22 이상 환경에서의 APK 빌드, 실기기 설치·화면 비율·손가락 터치·재실행 복원 검증(사용자가 집에서 확인), v0.1 완료 표시는 그 이후.
+- Git 커밋 및 태그: 완료 보고에 기록, 태그 없음.
