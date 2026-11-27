@@ -147,14 +147,15 @@ body,
 
 /*
  * 독서관리(세로형) 임시 화면. 화면 가운데에 세로형 콘텐츠로 둔다.
- * 테마는 화이트·슬레이트: 배경 #ffffff, 카드·폼 #f6f5f2, 글자 #354047, 보조 글자 #687178, 경계선 #dedfdd, 강조 #3a5668.
+ * 테마는 웜그레이·슬레이트: 배경 #f4f3f0, 카드·폼 #ffffff, 글자 #354047, 보조 글자 #687178, 경계선 #dedfdd, 강조 #3a5668.
+ * 카드는 그림자 없이 경계선과 작은 모서리로만 구분한다.
  * 도서관 화면(캔버스, 어두운 바탕)과 개발자 패널은 바꾸지 않으므로 색은 이 화면 안에서만 정한다.
  */
 .page--reading {
   place-items: start center;
   padding: 16px;
   color-scheme: light;
-  background: #ffffff;
+  background: #f4f3f0;
   color: #354047;
 }
 
@@ -182,9 +183,10 @@ body,
   font-size: 16px;
 }
 
+/* 카드 밖(웜그레이 배경 위)의 보조 글자라 #687178(대비 4.48)보다 살짝 진하게 해 4.5 이상을 맞춘다. */
 .reading-screen__empty {
   margin: 0;
-  color: #687178;
+  color: #646d74;
 }
 
 .reading-screen__form {
@@ -194,7 +196,7 @@ body,
   padding: 12px;
   border: 1px solid #dedfdd;
   border-radius: 8px;
-  background: #f6f5f2;
+  background: #ffffff;
 }
 
 .reading-screen__form label {
@@ -288,7 +290,7 @@ body,
   padding: 12px;
   border: 1px solid #dedfdd;
   border-radius: 8px;
-  background: #f6f5f2;
+  background: #ffffff;
 }
 
 .reading-screen__book-title {
