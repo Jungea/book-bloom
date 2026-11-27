@@ -125,6 +125,10 @@ body,
 }
 
 .view-switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   position: fixed;
   right: 8px;
   bottom: 8px;
@@ -246,6 +250,23 @@ body,
 
 .reading-screen input::placeholder {
   color: var(--reading-muted);
+}
+
+/* 아이콘 버튼(lucide-react): 아이콘은 currentColor라 버튼 글자색을 따른다. 아이콘만 있는 버튼은 정사각형(터치 영역 44px 이상). */
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.icon-button svg {
+  flex: none;
+}
+
+.icon-button--only {
+  width: 44px;
+  padding: 0;
 }
 
 /* 보조 버튼: 흰 바탕에 강조색 글자. 등록·저장 같은 제출 버튼만 강조색으로 채운다. */

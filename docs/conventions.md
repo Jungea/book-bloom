@@ -68,8 +68,9 @@
 현재 코드의 역할 분담(2026-11-27, v0.3 개발 중):
 
 - `src/core/` 순수 TypeScript 코어(Phaser·React 무관): `library`(책장·보관함·대출 기록 타입), `circulation`(예약·대출·만기·반납 대기·정리·회수), `visitors`·`visitorWorld`(손님 상태 머신과 메모리 월드, 도서관과는 훅으로만 연결), `returnSorter`(트레이 정리).
-- `src/reading/` 독서 기록과 도서관을 함께 다루는 게임 상태(`gameStore`), 저장 형식(`gameSnapshot` v3, v1·v2 복원), 코어를 저장소에 잇는 훅(`gameCirculation`).
+- `src/reading/` 독서 기록과 도서관을 함께 다루는 게임 상태(`gameStore`), 저장 형식(`gameSnapshot` v3, v1·v2 복원), 코어를 저장소에 잇는 훅(`gameCirculation`), 독서 관리 화면(`ReadingScreen`)과 그 아이콘(`IconButton`, `actionIcons`, `icons`: lucide-react).
 - `src/data/` 저장소 계층: IndexedDB 저장, 복원·복구(`loadGame`), 순차 저장(`persistGame`).
 - `src/game/` Phaser 장면과 순수 보조 함수(좌표, 임시 상수, 표시 규칙, 진행률 링).
 - `src/debug/` 개발자 테스트 패널(디버그 빌드에서만).
+- 의존성: 런타임 `react`, `react-dom`, `phaser`, `@capacitor/*`, `lucide-react`(독서 관리 화면 아이콘, 2026-11-27 사용자 승인). 개발 `vite`, `vitest`, `typescript`, `@capacitor/cli`. 새 의존성은 사용자 승인 후 추가하고 개발 일지에 기록한다.
 - 대출·정리의 규칙을 바꿀 때는 `core`에서 바꾸고 테스트를 함께 고친다. 장면은 코어 상태를 그리고 클릭을 코어로 전달할 뿐 규칙을 두지 않는다.

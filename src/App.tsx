@@ -1,3 +1,4 @@
+import { BookOpen } from 'lucide-react'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import Phaser from 'phaser'
 import { createGameStore, type GameStore } from './reading/gameStore'
@@ -17,6 +18,7 @@ import {
   settleDueGame,
   TEMP_SETTLE_INTERVAL_MS,
 } from './reading/gameCirculation'
+import { IconButton } from './reading/IconButton'
 import ReadingScreen from './reading/ReadingScreen'
 import { lockOrientation } from './orientation'
 
@@ -239,9 +241,7 @@ function LibraryView({ store, visitors, sorter, onOpenReading }: LibraryViewProp
     <>
       <h1 className="sr-only">북블룸 도서관</h1>
       <div className="game-frame" ref={canvasHost} aria-label="북블룸 도서관 초기 화면" />
-      <button type="button" className="view-switch" onClick={onOpenReading}>
-        독서 관리
-      </button>
+      <IconButton icon={BookOpen} label="독서 관리" className="view-switch" onClick={onOpenReading} />
       {DebugPanel && (
         <Suspense fallback={null}>
           <DebugPanel store={store} visitors={visitors} sorter={sorter} />
