@@ -55,6 +55,10 @@ const TRAY_BOOKS_LIFT = 44
 const TRAY_ICON_LIFT = 70
 const TRAY_ICON_SIZE = 20
 const TRAY_ICON_COLOR = 0x3a2a1a
+// 아이콘을 눌러도 반납 정리가 시작된다(눌리는 영역은 아이콘 사방으로 이만큼(논리 px) 넓다). 반납 책이 쌓여 있는 동안은 깜빡인다.
+const TRAY_ICON_HIT_PAD = 8
+const TRAY_BLINK_MS = 500
+const TRAY_BLINK_MIN_ALPHA = 0.2
 // 원형 진행률 링: 크기와 위치는 임시 값이다(최종 UI 미정). 트레이 링은 트레이 아이콘 왼쪽에 둔다.
 // 링은 캔버스 2D 텍스처로 그린다(`ringCanvas.ts`).
 interface RingSlot {
@@ -82,6 +86,7 @@ export class LibraryScene extends Phaser.Scene {
   private storageText: Phaser.GameObjects.Text | null = null
   private trayBooks: Phaser.GameObjects.Image | null = null
   private trayIcon: Phaser.GameObjects.Graphics | null = null
+  private trayBlink: Phaser.Tweens.Tween | null = null
   private visitorWorld: VisitorWorld | null = null
   private sorter: ReturnSorter | null = null
   private ringSlots: RingSlot[] = []
@@ -174,6 +179,19 @@ export class LibraryScene extends Phaser.Scene {
       .setScale(TRAY_ICON_SIZE / CANVAS_ICON_GRID)
       .setVisible(false)
     drawBookDownIcon(this.trayIcon, TRAY_ICON_COLOR)
+    // 아이콘을 눌러도 트레이를 누른 것과 같이 반납 정리가 시작된다. 누르기 쉽도록 눌리는 영역은 보이는 크기보다 사방으로 넓힌다
+    // (영역은 아이콘의 24 격자 좌표). 보이지 않을 때는 눌리지 않는다.
+    const hitPad = (TRAY_ICON_HIT_PAD * CANVAS_ICON_GRID) / TRAY_ICON_SIZE
+    this.trayIcon
+      .setInteractive(
+        new Phaser.Geom.Rectangle(-hitPad, -hitPad, CANVAS_ICON_GRID + 2 * hitPad, CANVAS_ICON_GRID + 2 * hitPad),
+        Phaser.Geom.Rectangle.Contains,
+      )
+      .on('pointerdown', () => {
+        this.sorter?.click()
+      })
+    if (this.trayIcon.input) this.trayIcon.input.cursor = 'pointer'
+    this.trayBlink = null
 
     this.add.rectangle(0, 0, width, STATUS_HEIGHT, 0x344b60).setOrigin(0, 0)
     this.add.image(width / 2, 0, 'statusBar').setOrigin(0.5, 0).setScale(0.5)
@@ -388,11 +406,33 @@ export class LibraryScene extends Phaser.Scene {
     drop(this.carriedBookImages, (id) => carriedIds.has(id))
   }
 
+  /** 반납 책이 쌓여 있는 동안 트레이 아이콘이 깜빡인다. 없어지면 멈추고 원래 투명도로 돌린다. */
+  private setTrayBlink(on: boolean) {
+    const icon = this.trayIcon
+    if (!icon) return
+    if (on) {
+      if (this.trayBlink) return
+      this.trayBlink = this.tweens.add({
+        targets: icon,
+        alpha: { from: 1, to: TRAY_BLINK_MIN_ALPHA },
+        duration: TRAY_BLINK_MS,
+        ease: 'Sine.easeInOut',
+        yoyo: true,
+        repeat: -1,
+      })
+      return
+    }
+    this.trayBlink?.remove()
+    this.trayBlink = null
+    icon.setAlpha(1)
+  }
+
   private renderBooks(state: LibraryState) {
     this.storageText?.setText(storageCountText(storedCount(state)))
     const tray = trayDisplay(returnedCount(state))
     this.trayBooks?.setVisible(tray.showBooks)
     this.trayIcon?.setVisible(tray.showBooks)
+    this.setTrayBlink(tray.showBooks)
     this.bookImages.forEach((image) => image.destroy())
     this.bookImages = []
     state.shelf.forEach((book, slot) => {
