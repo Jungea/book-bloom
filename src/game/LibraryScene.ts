@@ -13,10 +13,10 @@ import spineGrayUrl from '../../assets/source/v4/books/book_spine_gray.png'
 import spineRedUrl from '../../assets/source/v4/books/book_spine_red.png'
 import spineTaupeUrl from '../../assets/source/v4/books/book_spine_taupe.png'
 import type { LibraryState } from '../core/library'
-import type { LibraryStore } from '../core/libraryStore'
+import type { GameStore } from '../reading/gameStore'
 import { SHELF_HEIGHT, SHELF_WIDTH, slotPosition, spineVariant } from './shelfLayout'
 
-export const LIBRARY_STORE_KEY = 'libraryStore'
+export const GAME_STORE_KEY = 'gameStore'
 
 const SPINE_URLS = [spineBlueUrl, spineCreamUrl, spineGrayUrl, spineRedUrl, spineTaupeUrl]
 
@@ -81,10 +81,10 @@ export class LibraryScene extends Phaser.Scene {
       y: FLOOR_Y - SHELF_HEIGHT,
     }
     this.bookImages = []
-    const store = this.registry.get(LIBRARY_STORE_KEY) as LibraryStore | undefined
+    const store = this.registry.get(GAME_STORE_KEY) as GameStore | undefined
     if (store) {
-      this.renderBooks(store.getState())
-      const unsubscribe = store.subscribe(() => this.renderBooks(store.getState()))
+      this.renderBooks(store.getState().library)
+      const unsubscribe = store.subscribe(() => this.renderBooks(store.getState().library))
       this.events.once('shutdown', unsubscribe)
     }
 

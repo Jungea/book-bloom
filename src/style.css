@@ -72,6 +72,26 @@ body,
   gap: 6px;
 }
 
+.debug-panel__message {
+  margin: 0;
+  color: #f2b8a8;
+}
+
+.debug-panel__books {
+  display: grid;
+  gap: 6px;
+  max-height: 30vh;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.debug-panel__books li {
+  display: grid;
+  gap: 4px;
+}
+
 .debug-panel button {
   min-width: 44px;
   min-height: 44px;
