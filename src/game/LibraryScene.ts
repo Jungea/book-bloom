@@ -25,7 +25,7 @@ import { BASE_WIDTH, FLOOR_Y, HEIGHT, SLOT_CENTERS, STATUS_HEIGHT, spriteFilterF
 import { storageCountText } from './statusLabels'
 import { CANVAS_ICON_GRID, drawPackageIcon, drawBookDownIcon } from './canvasIcons'
 import { trayDisplay } from './trayDisplay'
-import { ringArc } from './progressRing'
+import { RING_RADIUS, drawRingCanvas, ringTextureSize } from './ringCanvas'
 import { carriedBookPlacement } from './carriedBook'
 import { UI_FONT_FAMILY, UI_FONT_WEIGHT } from '../uiFont'
 import {
@@ -55,7 +55,14 @@ const TRAY_ICON_LIFT = 70
 const TRAY_ICON_SIZE = 20
 const TRAY_ICON_COLOR = 0x3a2a1a
 // 원형 진행률 링: 크기와 위치는 임시 값이다(최종 UI 미정). 트레이 링은 트레이 아이콘 왼쪽에 둔다.
-const RING_RADIUS = 7
+// 링은 캔버스 2D 텍스처로 그린다(`ringCanvas.ts`).
+interface RingSlot {
+  key: string
+  image: Phaser.GameObjects.Image
+  texture: Phaser.Textures.CanvasTexture
+  /** 텍스처에 마지막으로 그린 진행률(아직 그리지 않았으면 NaN). */
+  progress: number
+}
 const TRAY_RING_OFFSET = { x: -(TRAY_ICON_SIZE / 2 + RING_RADIUS + 4), y: -(TRAY_ICON_LIFT + TRAY_ICON_SIZE / 2) }
 // 데스크 링은 머리 위에 눕혀 얹은 책 바로 위, 손님 가운데에 둔다(책과 겹치지 않게 책의 최대 두께만큼 띄운다).
 const DESK_RING_OFFSET = { x: 0, y: -(VISITOR_HEAD_TOP + CARRIED_BOOK_MAX_THICKNESS + RING_RADIUS + 3) }
@@ -76,7 +83,7 @@ export class LibraryScene extends Phaser.Scene {
   private trayIcon: Phaser.GameObjects.Graphics | null = null
   private visitorWorld: VisitorWorld | null = null
   private sorter: ReturnSorter | null = null
-  private rings: Phaser.GameObjects.Graphics | null = null
+  private ringSlots: RingSlot[] = []
   private flyingBooks = new Set<Phaser.GameObjects.Image>()
   private visitorImages = new Map<string, Phaser.GameObjects.Image>()
   private carriedBookImages = new Map<string, Phaser.GameObjects.Image>()
@@ -212,7 +219,7 @@ export class LibraryScene extends Phaser.Scene {
 
     // 트레이 정리 진행은 이 장면의 update에서만 흐른다(독서 관리 중에는 멈춘다, 임시 동작).
     this.sorter = (this.registry.get(SORTER_KEY) as ReturnSorter | undefined) ?? null
-    this.rings = this.add.graphics().setDepth(2000)
+    this.ringSlots = []
     this.flyingBooks = new Set()
     if (this.sorter && store) {
       cleanups.push(this.sorter.onSorted((bookId) => this.flyBook(bookId, store, offset)))
@@ -220,7 +227,11 @@ export class LibraryScene extends Phaser.Scene {
     cleanups.push(() => {
       this.flyingBooks.forEach((image) => image.destroy())
       this.flyingBooks.clear()
-      this.rings = null
+      this.ringSlots.forEach((slot) => {
+        slot.image.destroy()
+        this.textures.remove(slot.key)
+      })
+      this.ringSlots = []
       this.sorter = null
     })
 
@@ -244,18 +255,18 @@ export class LibraryScene extends Phaser.Scene {
 
   /** 원형 진행률을 그린다: 트레이 정리, 데스크 대출 처리. */
   private drawRings() {
-    const graphics = this.rings
-    if (!graphics) return
-    graphics.clear()
     const offset = (this.logicalWidth - BASE_WIDTH) / 2
+    let used = 0
     const ring = (x: number, y: number, progress: number) => {
-      graphics.lineStyle(2, 0x3a2a1a, 0.35)
-      graphics.strokeCircle(x, y, RING_RADIUS)
-      const arc = ringArc(progress)
-      graphics.lineStyle(2, 0xd9a441, 1)
-      graphics.beginPath()
-      graphics.arc(x, y, RING_RADIUS, arc.start, arc.end, false)
-      graphics.strokePath()
+      const slot = this.ringSlot(used++)
+      slot.image.setPosition(x, y).setVisible(true)
+      // 같은 진행률이면 텍스처를 다시 그리지 않는다(위치만 갱신).
+      if (slot.progress !== progress) {
+        const size = ringTextureSize(this.renderZoom)
+        drawRingCanvas(slot.texture.getContext(), size, this.renderZoom, progress)
+        slot.texture.refresh()
+        slot.progress = progress
+      }
     }
 
     if (this.sorter?.isActive()) {
@@ -266,6 +277,25 @@ export class LibraryScene extends Phaser.Scene {
       const progress = 1 - visitor.checkoutLeftMs / VISITOR_CONFIG.checkoutMs
       ring(offset + visitor.position.x + DESK_RING_OFFSET.x, visitor.position.y + DESK_RING_OFFSET.y, progress)
     }
+    for (let i = used; i < this.ringSlots.length; i++) this.ringSlots[i].image.setVisible(false)
+  }
+
+  /**
+   * 링 하나를 그리는 슬롯(캔버스 텍스처 + 이미지). 필요할 때 만든다.
+   * 텍스처는 기기 해상도로 만들고 이미지는 카메라 줌의 역수로 놓아 화면 픽셀과 1:1로 보인다.
+   */
+  private ringSlot(index: number): RingSlot {
+    const existing = this.ringSlots[index]
+    if (existing) return existing
+    const key = `ring-${index}`
+    if (this.textures.exists(key)) this.textures.remove(key)
+    const size = ringTextureSize(this.renderZoom)
+    const texture = this.textures.createCanvas(key, size, size)
+    if (!texture) throw new Error('링 텍스처를 만들지 못했습니다.')
+    const image = this.add.image(0, 0, key).setScale(1 / this.renderZoom).setDepth(2000).setVisible(false)
+    const slot: RingSlot = { key, image, texture, progress: Number.NaN }
+    this.ringSlots[index] = slot
+    return slot
   }
 
   /** 정리된 책이 트레이에서 책장 원래 자리로 날아가는 시각 효과. 상태는 정리 시점에 이미 바뀌어 있다. */
