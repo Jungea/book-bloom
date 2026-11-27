@@ -11,12 +11,13 @@ describe('UI_FONT_FAMILY', () => {
   it('도서관 화면 글자(Phaser)가 이 목록을 쓴다', () => {
     const scene = readFileSync(new URL('./game/LibraryScene.ts', import.meta.url), 'utf8')
     expect(scene).not.toContain("fontFamily: 'sans-serif'")
-    expect(scene.match(/fontFamily: UI_FONT_FAMILY/g)?.length).toBe(2)
+    // 도서관 화면에 남은 Phaser 글자는 보관함 숫자 하나다(반납 권수 글자는 트레이 아이콘으로 바꿨다).
+    expect(scene.match(/fontFamily: UI_FONT_FAMILY/g)?.length).toBe(1)
   })
 
   it('도서관 화면 글자의 굵기가 독서 관리 화면의 권수·제목과 같은 굵은 글씨다', () => {
     const scene = readFileSync(new URL('./game/LibraryScene.ts', import.meta.url), 'utf8')
     expect(UI_FONT_WEIGHT).toBe('bold')
-    expect(scene.match(/fontStyle: UI_FONT_WEIGHT/g)?.length).toBe(2)
+    expect(scene.match(/fontStyle: UI_FONT_WEIGHT/g)?.length).toBe(1)
   })
 })

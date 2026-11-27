@@ -23,7 +23,7 @@ import type { GameStore } from '../reading/gameStore'
 import { SHELF_HEIGHT, SHELF_WIDTH, slotPosition, spineVariant } from './shelfLayout'
 import { BASE_WIDTH, FLOOR_Y, HEIGHT, SLOT_CENTERS, STATUS_HEIGHT, spriteFilterFor } from './sceneLayout'
 import { storageCountText } from './statusLabels'
-import { ARCHIVE_ICON_GRID, drawArchiveIcon } from './archiveIcon'
+import { CANVAS_ICON_GRID, drawArchiveIcon, drawInboxIcon } from './canvasIcons'
 import { trayDisplay } from './trayDisplay'
 import { ringArc } from './progressRing'
 import { carriedBookPlacement } from './carriedBook'
@@ -48,12 +48,15 @@ const STORAGE_ICON_X = 404
 const STORAGE_ICON_SIZE = 16
 const STORAGE_ICON_GAP = 4
 const STORAGE_COLOR = 0xe9d5b9
-// 반납 트레이(논리 높이 64) 위에 쌓인 책을 얹는 높이와 권수 문구의 높이. 화면을 보며 맞춘 임시 값이다.
+// 반납 트레이(논리 높이 64) 위에 쌓인 책을 얹는 높이와 트레이 아이콘(16px, 권수는 표시하지 않는다)의 아래 끝 높이.
+// 화면을 보며 맞춘 임시 값이다.
 const TRAY_BOOKS_LIFT = 44
-const TRAY_LABEL_LIFT = 70
-// 원형 진행률 링: 크기와 위치는 임시 값이다(최종 UI 미정). 트레이 링은 `반납 N권` 문구 왼쪽에 둔다.
+const TRAY_ICON_LIFT = 70
+const TRAY_ICON_SIZE = 16
+const TRAY_ICON_COLOR = 0x3a2a1a
+// 원형 진행률 링: 크기와 위치는 임시 값이다(최종 UI 미정). 트레이 링은 트레이 아이콘 왼쪽에 둔다.
 const RING_RADIUS = 7
-const TRAY_RING_OFFSET = { x: -40, y: -76 }
+const TRAY_RING_OFFSET = { x: -(TRAY_ICON_SIZE / 2 + RING_RADIUS + 4), y: -(TRAY_ICON_LIFT + TRAY_ICON_SIZE / 2) }
 // 데스크 링은 머리 위에 눕혀 얹은 책 바로 위, 손님 가운데에 둔다(책과 겹치지 않게 책의 최대 두께만큼 띄운다).
 const DESK_RING_OFFSET = { x: 0, y: -(VISITOR_HEAD_TOP + CARRIED_BOOK_MAX_THICKNESS + RING_RADIUS + 3) }
 
@@ -70,7 +73,7 @@ export class LibraryScene extends Phaser.Scene {
   private bookImages: Phaser.GameObjects.Image[] = []
   private storageText: Phaser.GameObjects.Text | null = null
   private trayBooks: Phaser.GameObjects.Image | null = null
-  private trayText: Phaser.GameObjects.Text | null = null
+  private trayIcon: Phaser.GameObjects.Graphics | null = null
   private visitorWorld: VisitorWorld | null = null
   private sorter: ReturnSorter | null = null
   private rings: Phaser.GameObjects.Graphics | null = null
@@ -149,21 +152,18 @@ export class LibraryScene extends Phaser.Scene {
       .on('pointerdown', () => {
         this.sorter?.click()
       })
-    // 정리 전 반납 도서가 있으면 트레이 위에 쌓인 책과 권수를 얹는다(임시 표시, 위치는 화면을 보며 맞춘다).
+    // 정리 전 반납 도서가 있으면 트레이 위에 쌓인 책과 트레이 아이콘을 얹는다(권수는 표시하지 않는다, 임시 표시).
     this.trayBooks = this.add
       .image(offset + SLOT_CENTERS[3], FLOOR_Y - TRAY_BOOKS_LIFT, 'returnedBooks')
       .setOrigin(0.5, 1)
       .setScale(0.5)
       .setVisible(false)
-    this.trayText = this.add
-      .text(offset + SLOT_CENTERS[3], FLOOR_Y - TRAY_LABEL_LIFT, '', {
-        fontFamily: UI_FONT_FAMILY,
-        fontStyle: UI_FONT_WEIGHT,
-        fontSize: '11px',
-        color: '#3a2a1a',
-      })
-      .setOrigin(0.5, 1)
-      .setResolution(this.renderZoom)
+    this.trayIcon = this.add
+      .graphics()
+      .setPosition(offset + SLOT_CENTERS[3] - TRAY_ICON_SIZE / 2, FLOOR_Y - TRAY_ICON_LIFT - TRAY_ICON_SIZE)
+      .setScale(TRAY_ICON_SIZE / CANVAS_ICON_GRID)
+      .setVisible(false)
+    drawInboxIcon(this.trayIcon, TRAY_ICON_COLOR)
 
     this.add.rectangle(0, 0, width, STATUS_HEIGHT, 0x344b60).setOrigin(0, 0)
     this.add.image(width / 2, 0, 'statusBar').setOrigin(0.5, 0).setScale(0.5)
@@ -177,7 +177,7 @@ export class LibraryScene extends Phaser.Scene {
     const storageIcon = this.add
       .graphics()
       .setPosition(offset + STORAGE_ICON_X, (STATUS_HEIGHT - STORAGE_ICON_SIZE) / 2)
-      .setScale(STORAGE_ICON_SIZE / ARCHIVE_ICON_GRID)
+      .setScale(STORAGE_ICON_SIZE / CANVAS_ICON_GRID)
     drawArchiveIcon(storageIcon, STORAGE_COLOR)
     this.storageText = this.add
       .text(offset + STORAGE_ICON_X + STORAGE_ICON_SIZE + STORAGE_ICON_GAP, STATUS_HEIGHT / 2, '', {
@@ -338,7 +338,7 @@ export class LibraryScene extends Phaser.Scene {
     this.storageText?.setText(storageCountText(storedCount(state)))
     const tray = trayDisplay(returnedCount(state))
     this.trayBooks?.setVisible(tray.showBooks)
-    this.trayText?.setText(tray.label ?? '')
+    this.trayIcon?.setVisible(tray.showBooks)
     this.bookImages.forEach((image) => image.destroy())
     this.bookImages = []
     state.shelf.forEach((book, slot) => {
