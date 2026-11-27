@@ -64,5 +64,5 @@
 
 - 배경·폼·도서 목록·입력 면 `#ffffff`, 주요 글자 `#354047`, 버튼·강조 `#3a5668`, 보조 글자 `#687178`, 구분선(테두리) `#dedfdd`.
 - 도서 목록은 카드 테두리·배경·모서리·그림자 대신 항목 사이의 여백과 구분선으로 나눈다.
-- 색은 `src/style.css`의 `.page--reading` 안 CSS 변수(`--reading-bg`·`--reading-text`·`--reading-accent`·`--reading-muted`·`--reading-border`와 면·눌림·삭제·안내 보조 토큰) 한 블록에서만 정한다. 테마를 바꾸려면 이 값만 고친다. SCSS는 `sass` 의존성이 필요하고 값이 빌드 때 고정되어 쓰지 않았다(CSS 변수는 의존성이 없고 실행 중 전환도 가능).
+- 색은 `src/style.css`의 `.page--reading` 안 CSS 변수(`--reading-bg`·`--reading-text`·`--reading-accent`·`--reading-muted`·`--reading-border`와 면·눌림·삭제·안내 보조 토큰) 한 블록에서만 정한다. 테마를 바꾸려면 이 값만 고친다. SCSS는 `sass` 의존성이 필요하고 SCSS 변수만으로는 실행 중 테마 전환이 되지 않아(SCSS 안에서도 CSS 변수는 쓸 수 있다) 이번에는 의존성 없이 CSS 변수만 썼다.
 - 도서관 게임 화면(어두운 바탕, 캔버스)과 게임 에셋의 색은 이 테마와 무관하게 유지한다.
