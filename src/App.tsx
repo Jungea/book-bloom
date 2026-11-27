@@ -7,6 +7,7 @@ import { loadGame } from './data/loadGame'
 import { attachPersistence } from './data/persistGame'
 import { createVisitorWorld, type VisitorWorld } from './core/visitorWorld'
 import { GAME_STORE_KEY, LibraryScene, VISITOR_WORLD_KEY } from './game/LibraryScene'
+import { logicalWidthFor } from './game/sceneLayout'
 import { TEMP_SHELF_CAPACITY } from './game/shelfLayout'
 import { TEMP_LOAN_DURATION_MS, VISITOR_CONFIG } from './game/visitorLayout'
 import { createCirculationHooks } from './reading/gameCirculation'
@@ -139,38 +140,47 @@ function LibraryView({ store, visitors, onOpenReading }: LibraryViewProps) {
     if (!canvasHost.current) return
 
     const host = canvasHost.current
-    const logicalWidth = () => Math.max(640, Math.round(360 * host.clientWidth / host.clientHeight))
-    const game = new Phaser.Game({
-      type: Phaser.AUTO,
-      parent: host,
-      width: logicalWidth(),
-      height: 360,
-      backgroundColor: '#e9d5b9',
-      pixelArt: true,
-      roundPixels: true,
-      scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
-      },
-      callbacks: {
-        preBoot: (instance) => {
-          instance.registry.set(GAME_STORE_KEY, store)
-          instance.registry.set(VISITOR_WORLD_KEY, visitors)
-        },
-      },
-      scene: [LibraryScene],
-    })
+    let game: Phaser.Game | null = null
 
-    const observer = new ResizeObserver(() => {
-      const width = logicalWidth()
+    // 호스트 크기가 유효해진 뒤에만 캔버스를 만든다. 숨김 상태나 크기 0에서 만들면 너비가 NaN이 되어
+    // 부팅에 실패하고 화면이 검게 남는다(sceneLayout.logicalWidthFor 참고). 크기가 생기면 그때 시작한다.
+    const sync = () => {
+      const width = logicalWidthFor(host.clientWidth, host.clientHeight)
+      if (width === null) return
+      if (!game) {
+        game = new Phaser.Game({
+          type: Phaser.AUTO,
+          parent: host,
+          width,
+          height: 360,
+          backgroundColor: '#e9d5b9',
+          pixelArt: true,
+          roundPixels: true,
+          scale: {
+            mode: Phaser.Scale.FIT,
+            autoCenter: Phaser.Scale.CENTER_BOTH,
+          },
+          callbacks: {
+            preBoot: (instance) => {
+              instance.registry.set(GAME_STORE_KEY, store)
+              instance.registry.set(VISITOR_WORLD_KEY, visitors)
+            },
+          },
+          scene: [LibraryScene],
+        })
+        return
+      }
       if (game.scale.width !== width) game.scale.setGameSize(width, 360)
       game.scale.refresh()
-    })
+    }
+
+    const observer = new ResizeObserver(sync)
     observer.observe(host)
+    sync()
 
     return () => {
       observer.disconnect()
-      game.destroy(true)
+      game?.destroy(true)
     }
   }, [store, visitors])
 
