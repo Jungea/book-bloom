@@ -248,7 +248,7 @@ function LibraryView({ store, visitors, sorter, onOpenReading }: LibraryViewProp
     <>
       <h1 className="sr-only">북블룸 도서관</h1>
       <div className="game-frame" ref={canvasHost} aria-label="북블룸 도서관 초기 화면" />
-      <IconButton icon={BookOpen} label="독서 관리" className="view-switch" onClick={onOpenReading} />
+      <IconButton icon={BookOpen} label="독서 관리" iconOnly className="view-switch" onClick={onOpenReading} />
       {DebugPanel && (
         <Suspense fallback={null}>
           <DebugPanel store={store} visitors={visitors} sorter={sorter} />

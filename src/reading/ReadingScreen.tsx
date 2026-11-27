@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, Pencil, Plus, X } from 'lucide-react'
+import { BookOpen, Check, Pencil, Plus, X } from 'lucide-react'
 import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent } from 'react'
 import { actionIcon } from './actionIcons'
 import { GENRES, type Genre } from './genres'
@@ -50,7 +50,7 @@ export default function ReadingScreen({ store, onOpenLibrary }: ReadingScreenPro
       <header className="reading-screen__header">
         <h1>독서 관리</h1>
         <IconButton
-          icon={ArrowLeft}
+          icon={BookOpen}
           label="도서관으로 돌아가기"
           iconOnly
           className="reading-screen__switch"
