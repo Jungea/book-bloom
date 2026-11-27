@@ -9,7 +9,7 @@ import { attachPersistence } from './data/persistGame'
 import { createVisitorWorld, type VisitorWorld } from './core/visitorWorld'
 import { createReturnSorter, type ReturnSorter } from './core/returnSorter'
 import { GAME_STORE_KEY, LibraryScene, SORTER_KEY, VISITOR_WORLD_KEY } from './game/LibraryScene'
-import { logicalWidthFor } from './game/sceneLayout'
+import { HEIGHT, logicalWidthFor, renderZoomFor } from './game/sceneLayout'
 import { TEMP_SHELF_CAPACITY } from './game/shelfLayout'
 import { TEMP_LOAN_DURATION_MS, TEMP_SORT_MS, VISITOR_CONFIG } from './game/visitorLayout'
 import {
@@ -199,12 +199,17 @@ function LibraryView({ store, visitors, sorter, onOpenReading }: LibraryViewProp
     const sync = () => {
       const width = logicalWidthFor(host.clientWidth, host.clientHeight)
       if (width === null) return
+      // 캔버스는 기기 화면 픽셀에 맞춰 그리고(논리 360 높이 × zoom), 장면이 카메라 줌으로 논리 좌표를 그대로 쓴다.
+      // 논리 크기로 그린 캔버스를 CSS로 비정수배 확대하면 텍스트·링·손님이 깨져 보인다.
+      const zoom = renderZoomFor(host.clientWidth, host.clientHeight, window.devicePixelRatio || 1)
+      const pixelWidth = Math.round(width * zoom)
+      const pixelHeight = Math.round(HEIGHT * zoom)
       if (!game) {
         game = new Phaser.Game({
           type: Phaser.AUTO,
           parent: host,
-          width,
-          height: 360,
+          width: pixelWidth,
+          height: pixelHeight,
           backgroundColor: '#e9d5b9',
           pixelArt: true,
           roundPixels: true,
@@ -223,7 +228,9 @@ function LibraryView({ store, visitors, sorter, onOpenReading }: LibraryViewProp
         })
         return
       }
-      if (game.scale.width !== width) game.scale.setGameSize(width, 360)
+      if (game.scale.width !== pixelWidth || game.scale.height !== pixelHeight) {
+        game.scale.setGameSize(pixelWidth, pixelHeight)
+      }
       game.scale.refresh()
     }
 

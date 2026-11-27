@@ -21,7 +21,7 @@ import type { ReturnSorter } from '../core/returnSorter'
 import type { VisitorWorld } from '../core/visitorWorld'
 import type { GameStore } from '../reading/gameStore'
 import { SHELF_HEIGHT, SHELF_WIDTH, slotPosition, spineVariant } from './shelfLayout'
-import { BASE_WIDTH, FLOOR_Y, HEIGHT, SLOT_CENTERS, STATUS_HEIGHT } from './sceneLayout'
+import { BASE_WIDTH, FLOOR_Y, HEIGHT, SLOT_CENTERS, STATUS_HEIGHT, spriteFilterFor } from './sceneLayout'
 import { storageLabel } from './statusLabels'
 import { trayDisplay } from './trayDisplay'
 import { ringArc } from './progressRing'
@@ -57,6 +57,9 @@ function visitorNumber(id: string): number {
 }
 
 export class LibraryScene extends Phaser.Scene {
+  /** 캔버스 해상도 배율(캔버스 높이 / 논리 높이 360)과 그에 따른 논리 너비. create()에서 정한다. */
+  private renderZoom = 1
+  private logicalWidth = BASE_WIDTH
   private shelfOrigin = { x: 0, y: 0 }
   private bookImages: Phaser.GameObjects.Image[] = []
   private storageText: Phaser.GameObjects.Text | null = null
@@ -88,8 +91,19 @@ export class LibraryScene extends Phaser.Scene {
   }
 
   create() {
-    const width = this.scale.width
+    // 캔버스는 기기 화면 픽셀에 맞춰 논리 크기(360 높이)의 zoom배로 만들어진다(App.tsx). 장면 좌표는 논리 좌표를 그대로 쓰고
+    // 카메라 줌이 이를 캔버스 픽셀로 옮긴다. 글자는 같은 배율로 그려 또렷하게 하고, 링은 카메라를 거쳐 그대로 또렷해진다.
+    this.renderZoom = this.scale.height / HEIGHT
+    this.logicalWidth = this.scale.width / this.renderZoom
+    const width = this.logicalWidth
     const offset = (width - BASE_WIDTH) / 2
+    this.cameras.main.setZoom(this.renderZoom).centerOn(width / 2, HEIGHT / 2)
+    const filter =
+      spriteFilterFor(this.renderZoom) === 'linear' ? Phaser.Textures.FilterMode.LINEAR : Phaser.Textures.FilterMode.NEAREST
+    this.textures.getTextureKeys().forEach((key) => {
+      if (key.startsWith('__')) return
+      this.textures.get(key).setFilter(filter)
+    })
 
     this.add.tileSprite(
       width / 2,
@@ -142,7 +156,7 @@ export class LibraryScene extends Phaser.Scene {
         color: '#3a2a1a',
       })
       .setOrigin(0.5, 1)
-      .setResolution(2)
+      .setResolution(this.renderZoom)
 
     this.add.rectangle(0, 0, width, STATUS_HEIGHT, 0x344b60).setOrigin(0, 0)
     this.add.image(width / 2, 0, 'statusBar').setOrigin(0.5, 0).setScale(0.5)
@@ -159,7 +173,7 @@ export class LibraryScene extends Phaser.Scene {
         color: '#e9d5b9',
       })
       .setOrigin(1, 0.5)
-      .setResolution(2)
+      .setResolution(this.renderZoom)
     const store = this.registry.get(GAME_STORE_KEY) as GameStore | undefined
     // 씬이 재시작(shutdown)되거나 게임째 파괴(destroy)될 때 모두 구독을 해제한다.
     // 해제하지 않으면 다른 화면에서 상태가 바뀔 때 죽은 씬이 그려 보려다 예외를 던진다.
@@ -219,7 +233,7 @@ export class LibraryScene extends Phaser.Scene {
     const graphics = this.rings
     if (!graphics) return
     graphics.clear()
-    const offset = (this.scale.width - BASE_WIDTH) / 2
+    const offset = (this.logicalWidth - BASE_WIDTH) / 2
     const ring = (x: number, y: number, progress: number) => {
       graphics.lineStyle(2, 0x3a2a1a, 0.35)
       graphics.strokeCircle(x, y, RING_RADIUS)
@@ -267,7 +281,7 @@ export class LibraryScene extends Phaser.Scene {
   private syncVisitors(time: number) {
     const world = this.visitorWorld
     if (!world) return
-    const offset = (this.scale.width - BASE_WIDTH) / 2
+    const offset = (this.logicalWidth - BASE_WIDTH) / 2
     const alive = new Set<string>()
     const carriedIds = new Set<string>()
     for (const visitor of world.getVisitors()) {
