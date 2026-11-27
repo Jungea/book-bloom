@@ -51,3 +51,8 @@ export function walkSway(timeMs: number, spot: number): { lift: number; angle: n
   const wave = Math.sin(timeMs / 110 + spot * 1.7)
   return { lift: Math.abs(wave) * 2, angle: wave * 3 }
 }
+
+/** 반납 도서 한 권을 정리하는 시간. 기획에서 미정이라 임시로 대출 처리 시간과 같게 잡았다. */
+export const TEMP_SORT_MS = 3000
+/** 정리된 책이 트레이에서 책장 원래 자리로 날아가는 시간. 시각 효과일 뿐 상태는 정리 시점에 바뀐다. */
+export const TEMP_SORT_FLIGHT_MS = 500

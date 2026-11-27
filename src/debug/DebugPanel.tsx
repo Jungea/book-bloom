@@ -1,6 +1,7 @@
 import { useState, useSyncExternalStore } from 'react'
 import { onLoanCount, returnedCount } from '../core/circulation'
 import { shelvedCount } from '../core/library'
+import type { ReturnSorter } from '../core/returnSorter'
 import type { VisitorWorld } from '../core/visitorWorld'
 import type { GameStore } from '../reading/gameStore'
 import { registerBook, startReading, type Game, type Outcome } from '../reading/reading'
@@ -11,11 +12,12 @@ import { createTestBooks, nextTestSerial } from './testBooks'
 interface DebugPanelProps {
   store: GameStore
   visitors: VisitorWorld
+  sorter: ReturnSorter
 }
 
 // 개발자 테스트 패널. 실제 코어 함수(store)를 호출하며 저장은 상태 변경을 따라 자동으로 된다.
 // 디버그 빌드에서만 불러온다(App.tsx 참고).
-export default function DebugPanel({ store, visitors }: DebugPanelProps) {
+export default function DebugPanel({ store, visitors, sorter }: DebugPanelProps) {
   const game = useSyncExternalStore(store.subscribe, store.getState)
   // 손님 수와 줄 길이를 문자열 하나로 읽어 변화가 없을 때 다시 그리지 않게 한다.
   const visitorSummary = useSyncExternalStore(
@@ -23,6 +25,7 @@ export default function DebugPanel({ store, visitors }: DebugPanelProps) {
     () => `${visitors.getVisitors().length}/${visitors.getDeskQueue().length}`,
   )
   const [visitorCount, queueLength] = visitorSummary.split('/')
+  const sorting = useSyncExternalStore(sorter.subscribe, () => (sorter.isActive() ? '정리 중' : '정지'))
   const { library, reading } = game
   const shelved = shelvedCount(library)
   const [message, setMessage] = useState<string | null>(null)
@@ -50,7 +53,7 @@ export default function DebugPanel({ store, visitors }: DebugPanelProps) {
   return (
     <aside className="debug-panel" aria-label="개발자 테스트 패널">
       <p className="debug-panel__status">
-        책장 {shelved}/{library.shelfCapacity} · 보관함 {library.storage.length} · 대출 중 {onLoanCount(library)} · 반납 대기 {returnedCount(library)}
+        책장 {shelved}/{library.shelfCapacity} · 보관함 {library.storage.length} · 대출 중 {onLoanCount(library)} · 반납 대기 {returnedCount(library)} · 트레이 {sorting}
       </p>
       <div className="debug-panel__buttons">
         <button type="button" onClick={() => acquire(1)}>도서 1권</button>
@@ -79,6 +82,12 @@ export default function DebugPanel({ store, visitors }: DebugPanelProps) {
           onClick={() => setMessage(visitors.completeCheckout() ? null : '처리 중인 대출이 없습니다.')}
         >
           대출 즉시 완료
+        </button>
+        <button
+          type="button"
+          onClick={() => setMessage(sorter.click() === 'IGNORED' ? '정리할 반납 도서가 없습니다.' : null)}
+        >
+          트레이 클릭
         </button>
         <button type="button" onClick={() => visitors.clear()}>손님 모두 제거</button>
         <button type="button" onClick={() => store.apply((current) => expireLoans(current, Date.now()))}>

@@ -2,9 +2,12 @@ import {
   availableBookIds,
   cancelReservation,
   reserveBook,
+  returnedCount,
   settleDueLoans,
+  sortNextReturned,
   startLoan,
 } from '../core/circulation'
+import type { SortHooks, SortResult } from '../core/returnSorter'
 import type { HookResult, ReserveResult, VisitorHooks } from '../core/visitorWorld'
 import type { GameStore } from './gameStore'
 import type { Game, Outcome } from './reading'
@@ -69,6 +72,25 @@ export function createCirculationHooks(store: GameStore, options: CirculationOpt
         if (!result.ok) return { ok: false, reason: result.reason } as const
         return { ok: true, game: { ...game, library: result.state } } as const
       })
+    },
+  }
+}
+
+/** 반납 트레이 정리 객체의 훅을 `GameStore`에 연결한다. 정리 동작은 1단계 코어(`sortNextReturned`)를 쓴다. */
+export function createSortHooks(store: GameStore, options: { now(): number }): SortHooks {
+  return {
+    returnedCount: () => returnedCount(store.getState().library),
+    sortNext(): SortResult {
+      const picked: { value: string | null } = { value: null }
+      const outcome = store.apply((game) => {
+        const result = sortNextReturned(game.library, options.now())
+        if (!result.ok) return { ok: false, reason: result.reason } as const
+        if (result.bookId === null) return { ok: false, reason: '정리할 반납 도서가 없습니다.' } as const
+        picked.value = result.bookId
+        return { ok: true, game: { ...game, library: result.state } } as const
+      })
+      if (!outcome.ok) return { ok: false, reason: outcome.reason }
+      return picked.value ? { ok: true, bookId: picked.value } : { ok: false, reason: '도서를 정리하지 못했습니다.' }
     },
   }
 }

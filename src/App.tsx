@@ -6,11 +6,17 @@ import type { GameStorage } from './data/gameStorage'
 import { loadGame } from './data/loadGame'
 import { attachPersistence } from './data/persistGame'
 import { createVisitorWorld, type VisitorWorld } from './core/visitorWorld'
-import { GAME_STORE_KEY, LibraryScene, VISITOR_WORLD_KEY } from './game/LibraryScene'
+import { createReturnSorter, type ReturnSorter } from './core/returnSorter'
+import { GAME_STORE_KEY, LibraryScene, SORTER_KEY, VISITOR_WORLD_KEY } from './game/LibraryScene'
 import { logicalWidthFor } from './game/sceneLayout'
 import { TEMP_SHELF_CAPACITY } from './game/shelfLayout'
-import { TEMP_LOAN_DURATION_MS, VISITOR_CONFIG } from './game/visitorLayout'
-import { createCirculationHooks, settleDueGame, TEMP_SETTLE_INTERVAL_MS } from './reading/gameCirculation'
+import { TEMP_LOAN_DURATION_MS, TEMP_SORT_MS, VISITOR_CONFIG } from './game/visitorLayout'
+import {
+  createCirculationHooks,
+  createSortHooks,
+  settleDueGame,
+  TEMP_SETTLE_INTERVAL_MS,
+} from './reading/gameCirculation'
 import ReadingScreen from './reading/ReadingScreen'
 import { lockOrientation } from './orientation'
 
@@ -99,6 +105,10 @@ function Shell({ store, storage, loadNotice, recovered }: ShellProps) {
       }),
     ),
   )
+  // 반납 트레이 정리 진행은 메모리에만 있다(저장하지 않음). 도서관 화면에서만 흐른다(임시 동작).
+  const [sorter] = useState<ReturnSorter>(() =>
+    createReturnSorter({ sortMs: TEMP_SORT_MS }, createSortHooks(store, { now: Date.now })),
+  )
   const [saveNotice, setSaveNotice] = useState<string | null>(null)
 
   useEffect(() => {
@@ -148,7 +158,12 @@ function Shell({ store, storage, loadNotice, recovered }: ShellProps) {
   return (
     <main className={view === 'reading' ? 'page page--reading' : 'page'}>
       {view === 'library' ? (
-        <LibraryView store={store} visitors={visitors} onOpenReading={() => setView('reading')} />
+        <LibraryView
+          store={store}
+          visitors={visitors}
+          sorter={sorter}
+          onOpenReading={() => setView('reading')}
+        />
       ) : (
         <ReadingScreen store={store} onOpenLibrary={() => setView('library')} />
       )}
@@ -164,10 +179,11 @@ function Shell({ store, storage, loadNotice, recovered }: ShellProps) {
 interface LibraryViewProps {
   store: GameStore
   visitors: VisitorWorld
+  sorter: ReturnSorter
   onOpenReading: () => void
 }
 
-function LibraryView({ store, visitors, onOpenReading }: LibraryViewProps) {
+function LibraryView({ store, visitors, sorter, onOpenReading }: LibraryViewProps) {
   const canvasHost = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -198,6 +214,7 @@ function LibraryView({ store, visitors, onOpenReading }: LibraryViewProps) {
             preBoot: (instance) => {
               instance.registry.set(GAME_STORE_KEY, store)
               instance.registry.set(VISITOR_WORLD_KEY, visitors)
+              instance.registry.set(SORTER_KEY, sorter)
             },
           },
           scene: [LibraryScene],
@@ -216,7 +233,7 @@ function LibraryView({ store, visitors, onOpenReading }: LibraryViewProps) {
       observer.disconnect()
       game?.destroy(true)
     }
-  }, [store, visitors])
+  }, [store, visitors, sorter])
 
   return (
     <>
@@ -227,7 +244,7 @@ function LibraryView({ store, visitors, onOpenReading }: LibraryViewProps) {
       </button>
       {DebugPanel && (
         <Suspense fallback={null}>
-          <DebugPanel store={store} visitors={visitors} />
+          <DebugPanel store={store} visitors={visitors} sorter={sorter} />
         </Suspense>
       )}
     </>
